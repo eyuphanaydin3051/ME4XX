@@ -181,7 +181,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 flex flex-col font-sans selection:bg-indigo-600 selection:text-white transition-colors">
       {/* Global Header */}
       <Header
         metadata={coursesData.metadata}
@@ -196,15 +196,15 @@ export default function App() {
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* Top Control Bar with Quick Info & Export */}
-        <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-sm shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-4 bg-white/80 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 backdrop-blur-sm shadow-xs">
           <div className="flex items-center gap-3">
             <span className="flex h-3 w-3 relative">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
             </span>
-            <span className="text-xs text-slate-300 font-medium">
+            <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">
               Aktif Program:{' '}
-              <strong className="text-white">
+              <strong className="text-slate-900 dark:text-white">
                 {displayScheduledItems.length} Ders Kayıtlı
               </strong>{' '}
               ({blockedSlots.size} saat bloklu)
@@ -214,15 +214,15 @@ export default function App() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsRegGuideOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-200 border border-purple-500/40 text-xs font-semibold shadow-sm transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-600/20 dark:hover:bg-purple-600/30 text-purple-700 dark:text-purple-200 border border-purple-200 dark:border-purple-500/40 text-xs font-semibold shadow-xs transition-all"
             >
-              <FileText className="w-3.5 h-3.5 text-purple-400" />
+              <FileText className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
               <span>4xx Kayıt Bilgisi (Resmi PDF)</span>
             </button>
 
             <button
               onClick={() => setIsExportOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-900/30 transition-all transform hover:scale-[1.02]"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-900/20 transition-all transform hover:scale-[1.02]"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Programı Dışa Aktar / Yazdır</span>
@@ -279,12 +279,12 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950 py-6 text-center text-xs text-slate-400 no-print">
+      <footer className="border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950 py-6 text-center text-xs text-slate-500 dark:text-slate-400 no-print transition-colors">
         <div className="max-w-7xl mx-auto px-4 space-y-2">
           <p className="m-0">
             ODTÜ Makina Mühendisliği Ders Programı Planlayıcı • ME4 Teknik Seçmeli Optimizasyon Sistemi
           </p>
-          <p className="m-0 text-slate-400">
+          <p className="m-0 text-slate-400 dark:text-slate-500">
             Ders programı verileri robotdegilim.xyz ve ODTÜ SIS altyapısı ile senkronizedir.
           </p>
         </div>

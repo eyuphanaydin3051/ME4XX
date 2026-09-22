@@ -37,23 +37,23 @@ export default function RegistrationGuideModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-4xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col text-slate-800 dark:text-slate-100 transition-colors">
         {/* Top Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4 shrink-0">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-900/30">
               <FileText className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-white m-0">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white m-0">
                   2026-2027 Fall 4xx Dersleri Kayıt Bilgisi
                 </h3>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-semibold">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/10 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30 font-semibold">
                   Resmi Bölüm Duyurusu
                 </span>
               </div>
-              <p className="text-xs text-slate-400 m-0">
+              <p className="text-xs text-slate-500 dark:text-slate-400 m-0">
                 ODTÜ Makina Mühendisliği 4. sınıf teknik seçmeli derslerinin asistanları, kayıt yöntemleri ve form linkleri
               </p>
             </div>
@@ -61,7 +61,7 @@ export default function RegistrationGuideModal({ isOpen, onClose }) {
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -78,12 +78,12 @@ export default function RegistrationGuideModal({ isOpen, onClose }) {
               value={search}
               onChange={(e) => setSearch}
               onInput={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
             />
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-white text-xs"
               >
                 ✕
               </button>
@@ -94,40 +94,40 @@ export default function RegistrationGuideModal({ isOpen, onClose }) {
           <div className="flex gap-1.5 overflow-x-auto pb-1 text-xs">
             <button
               onClick={() => setFilterType('all')}
-              className={`px-3 py-1.5 rounded-xl font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all border ${
                 filterType === 'all'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                  ? 'bg-indigo-600 border-indigo-500 text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
               Tümü ({allRegData.length})
             </button>
             <button
               onClick={() => setFilterType('form')}
-              className={`px-3 py-1.5 rounded-xl font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all border ${
                 filterType === 'form'
-                  ? 'bg-purple-600 text-white shadow-sm'
-                  : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                  ? 'bg-purple-600 border-purple-500 text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
               Google Form ({allRegData.filter((i) => i.type === 'form').length})
             </button>
             <button
               onClick={() => setFilterType('interactive')}
-              className={`px-3 py-1.5 rounded-xl font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all border ${
                 filterType === 'interactive'
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                  ? 'bg-emerald-600 border-emerald-500 text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
               İnteraktif Kayıt ({allRegData.filter((i) => i.type === 'interactive').length})
             </button>
             <button
               onClick={() => setFilterType('prereq_attend')}
-              className={`px-3 py-1.5 rounded-xl font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all border ${
                 filterType === 'prereq_attend'
-                  ? 'bg-amber-600 text-white shadow-sm'
-                  : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                  ? 'bg-amber-600 border-amber-500 text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
               Şartlı / İlk Ders
@@ -148,12 +148,12 @@ export default function RegistrationGuideModal({ isOpen, onClose }) {
               return (
                 <div
                   key={item.code}
-                  className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 hover:border-slate-700 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs"
+                  className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs"
                 >
                   {/* Left: Code, TA, and Type Badge */}
                   <div className="space-y-1.5 min-w-[220px]">
                     <div className="flex items-center gap-2">
-                      <span className="font-extrabold text-sm text-amber-300">
+                      <span className="font-extrabold text-sm text-amber-600 dark:text-amber-300">
                         {item.code}
                       </span>
                       <span
@@ -163,13 +163,13 @@ export default function RegistrationGuideModal({ isOpen, onClose }) {
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-slate-300 font-medium">
+                    <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 font-medium">
                       <span>Asistan: {item.assistant}</span>
                       <a
                         href={`mailto:${item.email}?subject=${encodeURIComponent(
                           item.code + ' Kayıt Hakkında'
                         )}`}
-                        className="text-indigo-400 hover:text-indigo-300 flex items-center gap-0.5 text-[11px]"
+                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-0.5 text-[11px]"
                         title={`${item.assistant} kişisine e-posta gönder`}
                       >
                         <Mail className="w-3 h-3 inline" />
@@ -179,7 +179,7 @@ export default function RegistrationGuideModal({ isOpen, onClose }) {
                   </div>
 
                   {/* Center: Requirements / Notes */}
-                  <div className="flex-1 text-slate-300 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80">
+                  <div className="flex-1 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800/80">
                     <p className="m-0 leading-relaxed font-normal">
                       {item.notes}
                     </p>
@@ -208,7 +208,7 @@ export default function RegistrationGuideModal({ isOpen, onClose }) {
                         <span>Asistana Yaz</span>
                       </a>
                     ) : (
-                      <span className="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-400 text-xs border border-slate-700 font-medium">
+                      <span className="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs border border-slate-300 dark:border-slate-700 font-medium">
                         {typeCfg.shortLabel}
                       </span>
                     )}
@@ -220,11 +220,11 @@ export default function RegistrationGuideModal({ isOpen, onClose }) {
         </div>
 
         {/* Modal Footer */}
-        <div className="border-t border-slate-800 pt-3 flex items-center justify-between text-[11px] text-slate-400 shrink-0">
+        <div className="border-t border-slate-200 dark:border-slate-800 pt-3 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
           <span>Kaynak: 2026-2027 Fall 4XX Course Registration Announcement (ODTÜ ME)</span>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium transition-colors"
+            className="px-4 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-medium transition-colors"
           >
             Kapat
           </button>

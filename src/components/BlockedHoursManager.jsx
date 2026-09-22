@@ -43,19 +43,19 @@ export default function BlockedHoursManager({
   };
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-lg">
+    <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs dark:shadow-lg transition-colors">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20">
+          <div className="p-1.5 rounded-lg bg-rose-500/10 text-rose-500 dark:text-rose-400 border border-rose-500/20">
             <Lock className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-100 m-0">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 m-0">
               Bloklu Saatler (Ders İstemediğiniz Zamanlar)
             </h3>
-            <p className="text-xs text-slate-400 m-0">
+            <p className="text-xs text-slate-500 dark:text-slate-400 m-0">
               {blockedCount > 0 ? (
-                <span className="text-rose-400 font-medium">
+                <span className="text-rose-600 dark:text-rose-400 font-medium">
                   {blockedCount} saat bloklandı
                 </span>
               ) : (
@@ -68,7 +68,7 @@ export default function BlockedHoursManager({
         {blockedCount > 0 && (
           <button
             onClick={clearAllBlocks}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg border border-slate-700 hover:border-rose-500/30 transition-all"
+            className="flex items-center gap-1 px-2.5 py-1 text-xs text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg border border-slate-300 dark:border-slate-700 hover:border-rose-300 dark:hover:border-rose-500/30 transition-all"
           >
             <Unlock className="w-3.5 h-3.5" />
             <span>Tüm Blokları Kaldır</span>
@@ -80,33 +80,33 @@ export default function BlockedHoursManager({
       <div className="flex flex-wrap gap-2 text-xs">
         <button
           onClick={blockAll840s}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700/80 text-slate-300 border border-slate-700 hover:border-slate-600 transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all"
         >
-          <Sun className="w-3.5 h-3.5 text-amber-400" />
+          <Sun className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
           <span>Sabah 08:40'ları Kapat</span>
         </button>
 
         <button
           onClick={blockFriday}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700/80 text-slate-300 border border-slate-700 hover:border-slate-600 transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all"
         >
-          <CalendarOff className="w-3.5 h-3.5 text-purple-400" />
+          <CalendarOff className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
           <span>Cuma Gününü Boşalt</span>
         </button>
 
         <button
           onClick={blockLunchBreak}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700/80 text-slate-300 border border-slate-700 hover:border-slate-600 transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all"
         >
-          <Coffee className="w-3.5 h-3.5 text-emerald-400" />
+          <Coffee className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
           <span>Öğle Arasını Koru (12:40)</span>
         </button>
 
         <button
           onClick={blockMondayMorning}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700/80 text-slate-300 border border-slate-700 hover:border-slate-600 transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all"
         >
-          <Sun className="w-3.5 h-3.5 text-blue-400" />
+          <Sun className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
           <span>Pazartesi Sabahını Kapat</span>
         </button>
       </div>
