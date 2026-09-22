@@ -16,8 +16,12 @@ import {
   Pin,
   ChevronDown,
   ChevronUp,
+  ExternalLink,
+  Mail,
+  FileText,
 } from 'lucide-react';
 import { generateVariations } from '../utils/solver';
+import { getRegistrationInfo, REG_TYPE_CONFIG } from '../utils/registration';
 import confetti from 'canvas-confetti';
 
 const SORT_OPTIONS = [
@@ -247,6 +251,8 @@ export default function VariationExplorer({
             {allMe4Courses.map((c) => {
               const isChecked = enabledMe4Codes.has(c.code);
               const scheduledSecs = (c.sections || []).filter((s) => s.hasSchedule);
+              const regInfo = getRegistrationInfo(c.codeStr);
+              const regCfg = regInfo ? REG_TYPE_CONFIG[regInfo.type] : null;
 
               return (
                 <div
@@ -266,14 +272,21 @@ export default function VariationExplorer({
                       className="mt-1 rounded text-indigo-600 focus:ring-0 cursor-pointer"
                     />
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-1">
-                        <span
-                          className={`font-bold text-xs ${
-                            isChecked ? 'text-amber-300' : 'text-slate-400'
-                          }`}
-                        >
-                          {c.codeStr}
-                        </span>
+                      <div className="flex items-center justify-between gap-1 flex-wrap">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`font-bold text-xs ${
+                              isChecked ? 'text-amber-300' : 'text-slate-400'
+                            }`}
+                          >
+                            {c.codeStr}
+                          </span>
+                          {regCfg && (
+                            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-semibold border ${regCfg.badgeClass}`}>
+                              {regCfg.shortLabel}
+                            </span>
+                          )}
+                        </div>
                         {c.credits?.total > 0 && (
                           <span className="text-[10px] text-slate-400 bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700/60">
                             {c.credits.total} Kredi • {c.credits.ects} AKTS
@@ -287,6 +300,46 @@ export default function VariationExplorer({
                       >
                         {c.name}
                       </div>
+
+                      {/* Registration Info Callout (from PDF) */}
+                      {regInfo && (
+                        <div className="mt-2 p-2 rounded-lg bg-purple-950/40 border border-purple-500/30 text-[11px] space-y-1">
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="font-semibold text-purple-300 flex items-center gap-1">
+                              <FileText className="w-3 h-3 text-purple-400" />
+                              {regCfg?.label}
+                            </span>
+                            {regInfo.formUrl && (
+                              <a
+                                href={regInfo.formUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="flex items-center gap-1 px-2 py-0.5 rounded bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold shadow-sm transition-all"
+                              >
+                                <span>{regInfo.formName || 'Formu Aç'}</span>
+                                <ExternalLink className="w-2.5 h-2.5" />
+                              </a>
+                            )}
+                          </div>
+                          <p className="text-[10.5px] text-slate-300 leading-tight m-0">
+                            {regInfo.notes}
+                          </p>
+                          <div className="text-[10px] text-purple-200/80 flex flex-wrap items-center gap-1 pt-0.5 border-t border-purple-800/30">
+                            <span>Asistan: {regInfo.assistant}</span>
+                            <span>•</span>
+                            <a
+                              href={`mailto:${regInfo.email}?subject=${encodeURIComponent(
+                                c.codeStr + ' Kayıt Bilgisi'
+                              )}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-indigo-400 hover:underline flex items-center gap-0.5"
+                            >
+                              <Mail className="w-2.5 h-2.5 inline" /> {regInfo.email}
+                            </a>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -441,35 +494,63 @@ export default function VariationExplorer({
                     Bu Varyasyona Eklenen ME4 Teknik Seçmeliler:
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {currentVar.addedElectives.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="p-2.5 rounded-lg bg-slate-950/60 border border-amber-500/30 flex items-center justify-between text-xs"
-                      >
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-bold text-amber-300">
-                              {item.course.codeStr}
-                            </span>
-                            <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-200 border border-amber-500/30">
-                              Sec {item.section.sectionNumber}
-                            </span>
+                    {currentVar.addedElectives.map((item, idx) => {
+                      const reg = getRegistrationInfo(item.course.codeStr);
+                      const regCfg = reg ? REG_TYPE_CONFIG[reg.type] : null;
+
+                      return (
+                        <div
+                          key={idx}
+                          className="p-2.5 rounded-lg bg-slate-950/60 border border-amber-500/30 flex items-center justify-between text-xs gap-2"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="font-bold text-amber-300">
+                                {item.course.codeStr}
+                              </span>
+                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-200 border border-amber-500/30">
+                                Sec {item.section.sectionNumber}
+                              </span>
+                              {regCfg && (
+                                <span className={`text-[9.5px] px-1.5 py-0.2 rounded-full border font-semibold ${regCfg.badgeClass}`}>
+                                  {regCfg.shortLabel}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-slate-400 truncate mt-0.5">
+                              {item.course.name}
+                            </div>
+                            {reg && (
+                              <div className="text-[10px] text-purple-300/90 truncate mt-0.5" title={reg.notes}>
+                                {reg.notes}
+                              </div>
+                            )}
                           </div>
-                          <div className="text-[11px] text-slate-400 truncate mt-0.5">
-                            {item.course.name}
+
+                          <div className="shrink-0 flex flex-col items-end gap-1">
+                            {item.section.instructors?.length > 0 && (
+                              <div
+                                className="text-[10px] text-slate-300 font-medium text-right max-w-[150px] truncate"
+                                title={item.section.instructors.map((i) => i.name).join(', ')}
+                              >
+                                {item.section.instructors.map((i) => i.name).join(', ')}
+                              </div>
+                            )}
+                            {reg?.formUrl && (
+                              <a
+                                href={reg.formUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 px-2 py-0.5 rounded bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold shadow-sm transition-all"
+                              >
+                                <span>Kayıt Formu</span>
+                                <ExternalLink className="w-2.5 h-2.5" />
+                              </a>
+                            )}
                           </div>
                         </div>
-
-                        {item.section.instructors?.length > 0 && (
-                          <div
-                            className="text-[10px] text-slate-300 font-medium text-right shrink-0 max-w-[170px] truncate"
-                            title={item.section.instructors.map((i) => i.name).join(', ')}
-                          >
-                            {item.section.instructors.map((i) => i.name).join(', ')}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}

@@ -1,6 +1,6 @@
 // src/components/Header.jsx
 import React from 'react';
-import { Calendar, RefreshCw, Sparkles, BookOpen, Trash2, HelpCircle } from 'lucide-react';
+import { Calendar, RefreshCw, Sparkles, BookOpen, Trash2, HelpCircle, FileText } from 'lucide-react';
 
 export default function Header({
   metadata,
@@ -9,6 +9,7 @@ export default function Header({
   isSyncing,
   syncMessage,
   onOpenHelp,
+  onOpenRegistrationGuide,
 }) {
   return (
     <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
@@ -49,6 +50,15 @@ export default function Header({
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-indigo-400' : ''}`} />
             <span>{isSyncing ? 'Güncelleniyor...' : 'Veri Güncelle'}</span>
+          </button>
+
+          <button
+            onClick={onOpenRegistrationGuide}
+            title="2026-2027 Fall 4xx Dersleri Kayıt Bilgisi ve Form Linkleri"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-purple-500/40 bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 shadow-sm transition-all"
+          >
+            <FileText className="w-3.5 h-3.5 text-purple-300" />
+            <span>4xx Kayıt Bilgisi</span>
           </button>
 
           <button

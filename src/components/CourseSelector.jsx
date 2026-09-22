@@ -14,9 +14,13 @@ import {
   Building,
   GraduationCap,
   Layers,
+  FileText,
+  ExternalLink,
+  Mail,
 } from 'lucide-react';
 import { schedulesConflict, sectionConflictsWithBlocked } from '../utils/timeSlots';
 import { getCourseColor } from '../utils/colors';
+import { getRegistrationInfo, REG_TYPE_CONFIG } from '../utils/registration';
 
 const CATEGORIES = [
   { id: 'all', label: 'Tüm ME Dersleri' },
@@ -270,6 +274,8 @@ export default function CourseSelector({
                 const isSelected = selectedCourses.some((s) => s.course.code === course.code);
                 const isExpanded = expandedCourseCode === course.code;
                 const scheduledSections = course.sections.filter((s) => s.hasSchedule);
+                const regInfo = getRegistrationInfo(course.codeStr);
+                const regCfg = regInfo ? REG_TYPE_CONFIG[regInfo.type] : null;
 
                 return (
                   <div
@@ -308,6 +314,11 @@ export default function CourseSelector({
                             {course.credits?.total > 0 && (
                               <span>• {course.credits.total} Kredi ({course.credits.ects} AKTS)</span>
                             )}
+                            {regCfg && (
+                              <span className={`px-1.5 py-0.2 rounded-full font-semibold border ${regCfg.badgeClass}`}>
+                                {regCfg.shortLabel}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -329,6 +340,45 @@ export default function CourseSelector({
                     {/* Expanded Section Details */}
                     {isExpanded && (
                       <div className="p-3 pt-0 border-t border-slate-800/60 space-y-2 mt-1">
+                        {/* 2026-2027 Fall Registration Info Callout (from PDF) */}
+                        {regInfo && (
+                          <div className="p-2.5 rounded-xl bg-purple-950/40 border border-purple-500/40 text-xs space-y-1.5 shadow-sm">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1.5 font-bold text-purple-300">
+                                <FileText className="w-3.5 h-3.5 text-purple-400" />
+                                <span>Kayıt Yöntemi: {regCfg?.label}</span>
+                              </div>
+                              {regInfo.formUrl && (
+                                <a
+                                  href={regInfo.formUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-semibold shadow-sm transition-all"
+                                >
+                                  <span>{regInfo.formName || 'Formu Aç'}</span>
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-300 leading-normal m-0">
+                              {regInfo.notes}
+                            </p>
+                            <div className="text-[10.5px] text-purple-200/90 flex flex-wrap items-center gap-1 font-medium pt-0.5 border-t border-purple-800/40">
+                              <span>Asistan: {regInfo.assistant}</span>
+                              <span>•</span>
+                              <a
+                                href={`mailto:${regInfo.email}?subject=${encodeURIComponent(
+                                  course.codeStr + ' Kayıt Bilgisi'
+                                )}`}
+                                className="text-indigo-400 hover:text-indigo-300 flex items-center gap-0.5"
+                              >
+                                <Mail className="w-2.5 h-2.5 inline" /> {regInfo.email}
+                              </a>
+                            </div>
+                          </div>
+                        )}
+
                         <div className="text-[11px] font-semibold text-slate-400 mb-1 flex items-center justify-between">
                           <span>Section Seçimi & Ders Saatleri:</span>
                           <button

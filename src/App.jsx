@@ -8,8 +8,9 @@ import BlockedHoursManager from './components/BlockedHoursManager';
 import VariationExplorer from './components/VariationExplorer';
 import ExportModal from './components/ExportModal';
 import HelpModal from './components/HelpModal';
+import RegistrationGuideModal from './components/RegistrationGuideModal';
 import { loadSavedState, saveState } from './utils/storage';
-import { Download, Sparkles, AlertCircle, RefreshCw } from 'lucide-react';
+import { Download, Sparkles, AlertCircle, RefreshCw, FileText } from 'lucide-react';
 
 export default function App() {
   const [coursesData, setCoursesData] = useState(initialCoursesData);
@@ -55,6 +56,7 @@ export default function App() {
   const [previewItems, setPreviewItems] = useState(null);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isRegGuideOpen, setIsRegGuideOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState('');
 
@@ -188,6 +190,7 @@ export default function App() {
         isSyncing={isSyncing}
         syncMessage={syncMessage}
         onOpenHelp={() => setIsHelpOpen(true)}
+        onOpenRegistrationGuide={() => setIsRegGuideOpen(true)}
       />
 
       {/* Main Container */}
@@ -209,6 +212,14 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsRegGuideOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-200 border border-purple-500/40 text-xs font-semibold shadow-sm transition-all"
+            >
+              <FileText className="w-3.5 h-3.5 text-purple-400" />
+              <span>4xx Kayıt Bilgisi (Resmi PDF)</span>
+            </button>
+
             <button
               onClick={() => setIsExportOpen(true)}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-900/30 transition-all transform hover:scale-[1.02]"
@@ -289,6 +300,11 @@ export default function App() {
       />
 
       <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
+
+      <RegistrationGuideModal
+        isOpen={isRegGuideOpen}
+        onClose={() => setIsRegGuideOpen(false)}
+      />
     </div>
   );
 }

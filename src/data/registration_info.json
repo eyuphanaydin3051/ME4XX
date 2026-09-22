@@ -1,0 +1,200 @@
+[
+  {
+    "code": "ME 402",
+    "assistant": "Uğur Ozan Baygeldi",
+    "email": "baygeldi@metu.edu.tr",
+    "type": "form",
+    "formUrl": "https://forms.gle/F8XyBUqsXHhQFRsm6",
+    "formName": "ME402 FORM",
+    "notes": "Form doldurulmalıdır."
+  },
+  {
+    "code": "ME 403",
+    "assistant": "Ege Dağıstan",
+    "email": "egedag@metu.edu.tr",
+    "type": "form",
+    "formUrl": "https://forms.gle/T2MyYn6uvrbPjcCz5",
+    "formName": "ME403 FORM",
+    "notes": "Students must complete the form by 23:59 on Wednesday, 23 September 2026, and attend the first class."
+  },
+  {
+    "code": "ME 411",
+    "assistant": "Koray Melih Yatağan",
+    "email": "kyatagan@metu.edu.tr",
+    "type": "contact",
+    "formUrl": null,
+    "formName": null,
+    "notes": "Please contact with the assistant."
+  },
+  {
+    "code": "ME 413",
+    "assistant": "Şakir Akyol",
+    "email": "akyols@metu.edu.tr",
+    "type": "form",
+    "formUrl": "https://docs.google.com/forms/d/e/1FAIpQLSf7r9xJcQs980Ks5m1hQHmRN-eYTOkHxu0glavsw8nqiSTRBA/viewform?usp=header",
+    "formName": "ME413 FORM",
+    "notes": "Form doldurulmalıdır."
+  },
+  {
+    "code": "ME 414",
+    "assistant": "Mustafa Yiğit Görgün",
+    "email": "mgorgun@metu.edu.tr",
+    "type": "prereq_attend",
+    "formUrl": null,
+    "formName": null,
+    "notes": "Students who have successfully passed ME304 must attend the first lecture and send their transcript to the assistant."
+  },
+  {
+    "code": "ME 415",
+    "assistant": "Osman Ohtaroğlu",
+    "email": "ohtarogl@metu.edu.tr",
+    "type": "interactive",
+    "formUrl": null,
+    "formName": null,
+    "notes": "Students who have successfully passed ME204 can add the course in the interactive registration. Registration is limited to 30 students."
+  },
+  {
+    "code": "ME 423",
+    "assistant": "Mustafa Altuntaş",
+    "email": "mustafal@metu.edu.tr",
+    "type": "form",
+    "formUrl": "https://forms.gle/wRroKBhNJRLShKRh7",
+    "formName": "ME423 FORM",
+    "notes": "Form doldurulmalıdır."
+  },
+  {
+    "code": "ME 429",
+    "assistant": "Semih Durmaz",
+    "email": "semihd@metu.edu.tr",
+    "type": "form",
+    "formUrl": "https://forms.gle/KWQkjjpKznVwg8VY9",
+    "formName": "ME429 FORM",
+    "notes": "Form doldurulmalıdır."
+  },
+  {
+    "code": "ME 431",
+    "assistant": "Nuri Kafalı",
+    "email": "nkafali@metu.edu.tr",
+    "type": "form",
+    "formUrl": "https://forms.gle/Rn3RyB5rPoYd4Qea9",
+    "formName": "ME431 FORM",
+    "notes": "Form doldurulmalıdır."
+  },
+  {
+    "code": "ME 432",
+    "assistant": "Yahya Turan",
+    "email": "yturan@metu.edu.tr",
+    "type": "interactive",
+    "formUrl": null,
+    "formName": null,
+    "notes": "Students who have successfully passed ME208 can add the course in the interactive registration. Registration is limited to 50 students."
+  },
+  {
+    "code": "ME 434",
+    "assistant": "Mihrişah Arpacık",
+    "email": "mihrisah@metu.edu.tr",
+    "type": "interactive",
+    "formUrl": null,
+    "formName": null,
+    "notes": "Students who have successfully passed ME206 can add the course in the interactive registration. Registration is limited to 50 students."
+  },
+  {
+    "code": "ME 438",
+    "assistant": "Can Akıcı",
+    "email": "canakici@metu.edu.tr",
+    "type": "form",
+    "formUrl": "https://docs.google.com/forms/d/e/1FAIpQLSfTRupHhJwxa8SWd-JJMkTcoLVdUFxe3-Mu--ZtGjLB1D_7Og/viewform?usp=dialog",
+    "formName": "ME438 FORM",
+    "notes": "There will be no ME438 lecture in the first week of the semester. Students wishing to take the course must carefully complete the registration form by October 2 at 5:00 PM."
+  },
+  {
+    "code": "ME 442",
+    "assistant": "Özgür Diyar Bağuç",
+    "email": "obaguc@metu.edu.tr",
+    "type": "form",
+    "formUrl": "https://docs.google.com/forms/d/13L__fh-XLCB5lXWLHHW89mt-CZiUCGDP2wpSaheVFko/edit?usp=drivesdk",
+    "formName": "ME442 FORM",
+    "notes": "Students must attend the first lecture and fill the form if they want to take this course."
+  },
+  {
+    "code": "ME 455",
+    "assistant": "Umut Türkmen",
+    "email": "uturkmen@metu.edu.tr",
+    "type": "attend",
+    "formUrl": null,
+    "formName": null,
+    "notes": "Students must attend the first lecture if they want to take this course. Registration is limited to 30 students."
+  },
+  {
+    "code": "ME 461",
+    "assistant": "İsmail Özçil",
+    "email": "iozcil@metu.edu.tr",
+    "type": "form",
+    "formUrl": "https://forms.gle/1CLN5RRQC3RniCaB7",
+    "formName": "ME461 FORM",
+    "notes": "Form doldurulmalıdır."
+  },
+  {
+    "code": "ME 463",
+    "assistant": "Deniz Saltık",
+    "email": "dsaltik@metu.edu.tr",
+    "type": "form",
+    "formUrl": "https://forms.gle/VjmhGf89FsiJNmct8",
+    "formName": "ME463 FORM",
+    "notes": "Form doldurulmalıdır."
+  },
+  {
+    "code": "ME 464",
+    "assistant": "Ege Dağıstan",
+    "email": "egedag@metu.edu.tr",
+    "type": "form",
+    "formUrl": "https://docs.google.com/forms/d/e/1FAIpQLSfRVCEEJO03P23xvN1ol707SghdUnEBTn-7_iL8PQJtqM5JFQ/viewform",
+    "formName": "ME464 FORM",
+    "notes": "Form doldurulmalıdır."
+  },
+  {
+    "code": "ME 465",
+    "assistant": "Nuri Kafalı",
+    "email": "nkafali@metu.edu.tr",
+    "type": "attend",
+    "formUrl": null,
+    "formName": null,
+    "notes": "Students must attend the first lecture if they want to take this course."
+  },
+  {
+    "code": "ME 474",
+    "assistant": "Umut Güçlü",
+    "email": "uguclu@metu.edu.tr",
+    "type": "interactive",
+    "formUrl": null,
+    "formName": null,
+    "notes": "Students can add this course in the interactive registration. Registration is limited to 30 students."
+  },
+  {
+    "code": "ME 485",
+    "assistant": "Sait Emre Dal",
+    "email": "dalemre@metu.edu.tr",
+    "type": "prereq_attend",
+    "formUrl": null,
+    "formName": null,
+    "notes": "Students must attend the first lecture and have successfully completed ME305, ME306, and ME311."
+  },
+  {
+    "code": "ME 493",
+    "assistant": "Cem Türkeş",
+    "email": "cturkes@metu.edu.tr",
+    "type": "contact",
+    "formUrl": null,
+    "formName": null,
+    "notes": "Please contact with the assistant."
+  },
+  {
+    "code": "ME 497",
+    "assistant": "Sinan Savaşkan",
+    "email": "savaskan@metu.edu.tr",
+    "type": "interactive",
+    "formUrl": null,
+    "formName": null,
+    "notes": "Students can add this course in the interactive registration. Registration is limited to 40 students."
+  }
+]
