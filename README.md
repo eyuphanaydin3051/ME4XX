@@ -88,23 +88,33 @@ Derleme çıktısı `dist/` klasörüne oluşturulur.
 
 Bu uygulama %100 istemci tarafında (Client-Side) çalıştığı için herhangi bir sunucu maliyeti gerektirmez ve aşağıdaki ücretsiz platformlarda ömür boyu ücretsiz yayınlanabilir:
 
-### 1. Vercel ile Yayınlama (Önerilen - En Kolay)
-1. Projeyi bir GitHub reposuna yükleyin (veya Vercel CLI kullanın).
-2. [vercel.com](https://vercel.com) adresine gidin ve **Add New Project** seçin.
-3. GitHub reponuzu bağlayın. Vercel `vercel.json` dosyasını otomatik tanıyacaktır.
-4. **Deploy** butonuna tıklayın. 30 saniye içinde siteniz `https://projeniz.vercel.app` adresinde yayında!
+### 1. GitHub Pages (Otomatik CI/CD)
+Projede `.github/workflows/deploy.yml` GitHub Actions iş akışı kuruludur:
+1. Kodları GitHub'a gönderin:
+   ```bash
+   git push -u origin main
+   ```
+2. GitHub'da **eyuphanaydin3051/ME4XX** reposuna gidin -> **Settings** -> **Pages**.
+3. **Build and deployment** > **Source** kısmında **"GitHub Actions"** seçeneğini seçin.
+4. Kodları her push ettiğinizde siteniz otomatik derlenip şu adreste yayınlanacaktır:
+   👉 **`https://eyuphanaydin3051.github.io/ME4XX/`**
 
-### 2. Netlify ile Yayınlama
-1. `npm run build` komutunu çalıştırın.
-2. [netlify.com](https://app.netlify.com/drop) adresine gidin.
-3. `metu-me-scheduler/dist` klasörünü sürükleyip tarayıcıya bırakın.
-4. Siteniz anında ücretsiz yayına alınır!
+### 2. Vercel ile Yayınlama (Önerilen - En Kolay ve Hızlı)
+1. [vercel.com](https://vercel.com) adresine gidip GitHub hesabınızla giriş yapın.
+2. **Add New Project** butonuna tıklayın.
+3. Listeden **`eyuphanaydin3051/ME4XX`** reposunu seçip **Import** deyin.
+4. Framework olarak Vite ve `vercel.json` otomatik algılanacaktır.
+5. **Deploy** butonuna tıklayın. 20-30 saniye içinde siteniz `https://me4xx.vercel.app` (veya istediğiniz özel isim) adresinde yayında!
 
-### 3. Cloudflare Pages ile Yayınlama
-1. [dash.cloudflare.com](https://dash.cloudflare.com) adresine gidin -> **Workers & Pages** -> **Create application** -> **Pages**.
-2. GitHub reponuzu bağlayın.
-3. Build command: `npm run build`, Output directory: `dist`.
-4. Deploy!
+### 3. Netlify ile Yayınlama
+* **GitHub Entegrasyonu:** [netlify.com](https://netlify.com) adresinde **Add new site** -> **Import an existing project** -> **GitHub** -> **ME4XX** seçip Deploy deyin (`netlify.toml` hazırdır).
+* **Manuel Sürükle-Bırak:** [app.netlify.com/drop](https://app.netlify.com/drop) adresine girip projedeki `dist` klasörünü sürükleyip bırakarak 5 saniyede anında yayına alabilirsiniz.
+
+### 4. Cloudflare Pages ile Yayınlama
+1. [dash.cloudflare.com](https://dash.cloudflare.com) adresinde **Workers & Pages** -> **Create application** -> **Pages** sekmesine gidin.
+2. GitHub reponuzu bağlayın: **`eyuphanaydin3051/ME4XX`**.
+3. Framework preset: **Vite**, Build command: `npm run build`, Output directory: `dist`.
+4. Deploy! Siteniz Cloudflare'in küresel CDN ağı üzerinde sınırsız bant genişliği ile yayınlanır.
 
 ---
 
