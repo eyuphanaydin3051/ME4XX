@@ -111,7 +111,7 @@ export default function Timetable({
 
       {/* Grid Container */}
       <div className="overflow-x-auto" ref={timetableRef}>
-        <table className="w-full border-collapse table-fixed select-none text-left min-w-[700px]">
+        <table className="w-full border-collapse table-fixed select-none text-left min-w-[620px] md:min-w-full">
           <colgroup>
             <col style={{ width: '68px', minWidth: '68px', maxWidth: '68px' }} />
             {DAYS.map((day) => (

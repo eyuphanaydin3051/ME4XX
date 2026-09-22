@@ -293,8 +293,8 @@ export default function VariationExplorer({
             </div>
           </div>
 
-          {/* Responsive Layout for Pool: 1 col on compact/sidebar, 2 cols on 2xl */}
-          <div className="grid grid-cols-1 2xl:grid-cols-2 gap-2.5 max-h-80 overflow-y-auto pr-1">
+          {/* Responsive Layout for Pool: 1 col on mobile, 2 cols on md, 3 cols on xl */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2.5 max-h-80 overflow-y-auto pr-1">
             {allMe4Courses.map((c) => {
               const isChecked = enabledMe4Codes.has(c.code);
               const scheduledSecs = (c.sections || []).filter((s) => s.hasSchedule);
@@ -554,7 +554,7 @@ export default function VariationExplorer({
                   <div className="text-[11px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider mb-1.5">
                     Bu Varyasyona Eklenen ME4 Teknik Seçmeliler:
                   </div>
-                  <div className="grid grid-cols-1 2xl:grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
                     {currentVar.addedElectives.map((item, idx) => {
                       const reg = getRegistrationInfo(item.course.codeStr);
                       const regCfg = reg ? REG_TYPE_CONFIG[reg.type] : null;
@@ -638,7 +638,7 @@ export default function VariationExplorer({
           )}
 
           {/* Quick Mini Slider of First 5-8 Variations */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 pt-1">
             {variations.slice(0, 8).map((v, idx) => {
               const isCurrent = idx === currentIndex;
               return (

@@ -290,38 +290,38 @@ export default function App() {
           />
         </div>
 
-        {/* 2) Alt Kısım: Solda Varyasyon Üretici (Daraltılmış Kompakt), Sağda Haftalık Program & Saat Bloklama (Genişletilmiş) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Sol Kolon: Varyasyon Üretici Kartı (Kompakt 4 Kolon) */}
-          <div className="lg:col-span-5 xl:col-span-4 space-y-6">
-            <VariationExplorer
-              allCourses={coursesData.courses}
-              selectedCourses={selectedCourses}
-              blockedSlots={blockedSlots}
-              targetTotalCount={targetTotalCount}
-              onChangeTargetTotal={setTargetTotalCount}
-              activeVariation={activeVariation}
-              onSelectVariation={setActiveVariation}
-              onPinVariation={handlePinVariation}
-              onPreviewHover={setPreviewItems}
-            />
-          </div>
+        {/* 2) ME4 Teknik Seçmeli Varyasyon Üretici & Filtreler (Haftalık Programın Üstünde - Tam Genişlik) */}
+        <div className="w-full">
+          <VariationExplorer
+            allCourses={coursesData.courses}
+            selectedCourses={selectedCourses}
+            blockedSlots={blockedSlots}
+            targetTotalCount={targetTotalCount}
+            onChangeTargetTotal={setTargetTotalCount}
+            activeVariation={activeVariation}
+            onSelectVariation={setActiveVariation}
+            onPinVariation={handlePinVariation}
+            onPreviewHover={setPreviewItems}
+          />
+        </div>
 
-          {/* Sağ Kolon: Saat Bloklama & Haftalık Ders Programı (Geniş 8 Kolon) */}
-          <div className="lg:col-span-7 xl:col-span-8 space-y-6">
-            <BlockedHoursManager
-              blockedSlots={blockedSlots}
-              onUpdateBlockedSlots={handleUpdateBlockedSlots}
-            />
+        {/* 3) Saat Bloklama Yöneticisi */}
+        <div className="w-full">
+          <BlockedHoursManager
+            blockedSlots={blockedSlots}
+            onUpdateBlockedSlots={handleUpdateBlockedSlots}
+          />
+        </div>
 
-            <Timetable
-              scheduledItems={displayScheduledItems}
-              blockedSlots={blockedSlots}
-              onToggleBlockSlot={handleToggleBlockSlot}
-              previewItems={previewItems}
-              timetableRef={timetableRef}
-            />
-          </div>
+        {/* 4) Haftalık Ders Takvimi (Tam Genişlik - Tüm Günler Tek Seferde Görünür) */}
+        <div className="w-full">
+          <Timetable
+            scheduledItems={displayScheduledItems}
+            blockedSlots={blockedSlots}
+            onToggleBlockSlot={handleToggleBlockSlot}
+            previewItems={previewItems}
+            timetableRef={timetableRef}
+          />
         </div>
       </main>
 
