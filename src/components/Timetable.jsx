@@ -12,6 +12,7 @@ import {
   ExternalLink,
   Copy,
   Check,
+  Download,
 } from 'lucide-react';
 import { getCoursePrerequisite } from '../utils/prerequisites';
 import { getRegistrationInfo, REG_TYPE_CONFIG } from '../utils/registration';
@@ -22,6 +23,7 @@ export default function Timetable({
   onToggleBlockSlot,
   previewItems = null, // [{ course, section }] for hover preview
   timetableRef,
+  onOpenExport,
 }) {
   const [copiedCourseCode, setCopiedCourseCode] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
@@ -84,16 +86,17 @@ export default function Timetable({
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col transition-colors">
       {/* Timetable Header / Toolbar */}
-      <div className="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/50">
+      <div className="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-50 dark:bg-slate-950/50">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider m-0">
             Haftalık Ders Takvimi
           </h2>
-          <span className="text-xs text-slate-500 dark:text-slate-400">
+          <span className="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline">
             (Dersler 50 dk • 08:40 - 17:30)
           </span>
         </div>
-        <div className="flex items-center gap-4 text-xs text-slate-600 dark:text-slate-400">
+
+        <div className="flex items-center gap-3 sm:gap-4 text-xs text-slate-600 dark:text-slate-400 flex-wrap">
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-indigo-500/20 dark:bg-indigo-500/30 border border-indigo-400/60 inline-block"></span>
             <span>Sabit Dersler</span>
@@ -106,6 +109,18 @@ export default function Timetable({
             <span className="w-3 h-3 rounded bg-rose-100 dark:bg-rose-950/70 border border-rose-300 dark:border-rose-800/80 inline-block bg-[radial-gradient(#ef4444_1px,transparent_1px)] [background-size:6px_6px]"></span>
             <span>Bloklu Saat</span>
           </div>
+
+          {/* Takvimi Dışa Aktar Butonu */}
+          {onOpenExport && (
+            <button
+              onClick={onOpenExport}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-xs transition-all transform hover:scale-[1.02] ml-1 sm:ml-2"
+              title="Haftalık ders takvimini görsel (PNG), PDF veya metin olarak dışa aktar"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Takvimi Dışa Aktar</span>
+            </button>
+          )}
         </div>
       </div>
 

@@ -6,7 +6,8 @@ import Timetable from './components/Timetable';
 import CourseSelector from './components/CourseSelector';
 import BlockedHoursManager from './components/BlockedHoursManager';
 import VariationExplorer from './components/VariationExplorer';
-import ExportModal from './components/ExportModal';
+import ExportTimetableModal from './components/ExportTimetableModal';
+import SavePreferencesModal from './components/SavePreferencesModal';
 import HelpModal from './components/HelpModal';
 import RegistrationGuideModal from './components/RegistrationGuideModal';
 import { loadSavedState, saveState } from './utils/storage';
@@ -54,7 +55,8 @@ export default function App() {
 
   const [activeVariation, setActiveVariation] = useState(null);
   const [previewItems, setPreviewItems] = useState(null);
-  const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isRegGuideOpen, setIsRegGuideOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -267,12 +269,12 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => setIsExportOpen(true)}
+              onClick={() => setIsSaveModalOpen(true)}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-900/20 transition-all transform hover:scale-[1.02]"
-              title="Seçimleri Kaydet, JSON Olarak İndir/Yükle veya Görsel Olarak Dışa Aktar"
+              title="Seçimleri Kaydet, Kayıtlı Tercihleri Yükle, SIS Kodları veya JSON Dosyasını Yönet"
             >
               <BookmarkPlus className="w-3.5 h-3.5" />
-              <span>Seçimleri Kaydet / Dışa Aktar</span>
+              <span>Seçimleri Kaydet</span>
             </button>
           </div>
         </div>
@@ -321,6 +323,7 @@ export default function App() {
             onToggleBlockSlot={handleToggleBlockSlot}
             previewItems={previewItems}
             timetableRef={timetableRef}
+            onOpenExport={() => setIsExportModalOpen(true)}
           />
         </div>
       </main>
@@ -338,16 +341,23 @@ export default function App() {
       </footer>
 
       {/* Modals */}
-      <ExportModal
-        isOpen={isExportOpen}
-        onClose={() => setIsExportOpen(false)}
-        timetableRef={timetableRef}
-        scheduledCourses={displayScheduledItems}
+      <SavePreferencesModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        selectedCourses={selectedCourses}
         blockedSlots={blockedSlots}
         targetTotalCount={targetTotalCount}
-        metadata={coursesData.metadata}
+        activeVariation={activeVariation}
         onLoadPlan={handleLoadPlan}
-        allCourses={coursesData.courses}
+        metadata={coursesData.metadata}
+      />
+
+      <ExportTimetableModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        timetableRef={timetableRef}
+        scheduledCourses={displayScheduledItems}
+        metadata={coursesData.metadata}
       />
 
       <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
