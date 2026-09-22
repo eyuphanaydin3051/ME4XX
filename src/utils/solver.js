@@ -125,6 +125,18 @@ export function generateVariations({
     if (fixedSelections.some((f) => f.course.code === c.code)) {
       return false;
     }
+    // Cannot pick must courses or 407/410
+    if (
+      c.courseNumber === '407' ||
+      c.courseNumber === '410' ||
+      c.code === '5690407' ||
+      c.code === '5690410' ||
+      c.codeStr === 'ME 407' ||
+      c.codeStr === 'ME 410' ||
+      c.isMust
+    ) {
+      return false;
+    }
     // Must be enabled by user
     if (enabledMe4Codes && !enabledMe4Codes.has(c.code)) {
       return false;

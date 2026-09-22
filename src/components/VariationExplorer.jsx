@@ -48,15 +48,23 @@ export default function VariationExplorer({
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // All ME4 courses in the database that have at least one scheduled section (excluding must courses ME 407 and ME 410)
+  // All ME4 courses in the database that have at least one scheduled section (strictly excluding must courses ME 407, ME 410, ME 400)
   const allMe4Courses = useMemo(() => {
     return allCourses
       .filter(
         (c) =>
           c.isME4 &&
+          !c.isMust &&
           c.sections.some((s) => s.hasSchedule) &&
           c.courseNumber !== '407' &&
-          c.courseNumber !== '410'
+          c.courseNumber !== '410' &&
+          c.courseNumber !== '400' &&
+          c.code !== '5690407' &&
+          c.code !== '5690410' &&
+          c.code !== '5690400' &&
+          c.codeStr !== 'ME 407' &&
+          c.codeStr !== 'ME 410' &&
+          c.codeStr !== 'ME 400'
       )
       .sort((a, b) => parseInt(a.courseNumber, 10) - parseInt(b.courseNumber, 10));
   }, [allCourses]);
@@ -66,10 +74,15 @@ export default function VariationExplorer({
     return new Set(allMe4Courses.map((c) => c.code));
   });
 
-  // Keep enabledMe4Codes in sync if allMe4Courses changes
+  // Keep enabledMe4Codes in sync and purged of any excluded courses if allMe4Courses changes
   useEffect(() => {
-    if (allMe4Courses.length > 0 && enabledMe4Codes.size === 0) {
-      setEnabledMe4Codes(new Set(allMe4Courses.map((c) => c.code)));
+    if (allMe4Courses.length > 0) {
+      const validCodeSet = new Set(allMe4Courses.map((c) => c.code));
+      setEnabledMe4Codes((prev) => {
+        if (!prev || prev.size === 0) return validCodeSet;
+        const cleaned = new Set([...prev].filter((code) => validCodeSet.has(code)));
+        return cleaned.size > 0 ? cleaned : validCodeSet;
+      });
     }
   }, [allMe4Courses]);
 
@@ -280,8 +293,8 @@ export default function VariationExplorer({
             </div>
           </div>
 
-          {/* 2 Columns Layout for Detailed View */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-80 overflow-y-auto pr-1">
+          {/* Responsive Layout for Pool: 1 col on compact/sidebar, 2 cols on 2xl */}
+          <div className="grid grid-cols-1 2xl:grid-cols-2 gap-2.5 max-h-80 overflow-y-auto pr-1">
             {allMe4Courses.map((c) => {
               const isChecked = enabledMe4Codes.has(c.code);
               const scheduledSecs = (c.sections || []).filter((s) => s.hasSchedule);
@@ -541,7 +554,7 @@ export default function VariationExplorer({
                   <div className="text-[11px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider mb-1.5">
                     Bu Varyasyona Eklenen ME4 Teknik Seçmeliler:
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 2xl:grid-cols-2 gap-2">
                     {currentVar.addedElectives.map((item, idx) => {
                       const reg = getRegistrationInfo(item.course.codeStr);
                       const regCfg = reg ? REG_TYPE_CONFIG[reg.type] : null;

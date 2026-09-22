@@ -6,7 +6,7 @@
     "semesterName": "2026-2027 Fall",
     "updatedAt": "2026-09-23T00:30:07.651629+03:00",
     "totalCourses": 152,
-    "me4CoursesCount": 23
+    "me4CoursesCount": 22
   },
   "courses": [
     {
@@ -2492,8 +2492,9 @@
       "courseNumber": "400",
       "codeStr": "ME 400",
       "name": "SUMMER PRACTICE II",
-      "category": "4. Sınıf (Teknik Seçmeli)",
-      "isME4": true,
+      "category": "4. Sınıf (Zorunlu Staj)",
+      "isME4": false,
+      "isMust": true,
       "credits": {
         "total": 0,
         "ects": 5,
