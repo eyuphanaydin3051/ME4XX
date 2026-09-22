@@ -10,7 +10,7 @@ import ExportModal from './components/ExportModal';
 import HelpModal from './components/HelpModal';
 import RegistrationGuideModal from './components/RegistrationGuideModal';
 import { loadSavedState, saveState } from './utils/storage';
-import { Download, Sparkles, AlertCircle, RefreshCw, FileText } from 'lucide-react';
+import { Download, Sparkles, AlertCircle, RefreshCw, FileText, BookmarkPlus, Save } from 'lucide-react';
 
 export default function App() {
   const [coursesData, setCoursesData] = useState(initialCoursesData);
@@ -140,6 +140,52 @@ export default function App() {
     );
   };
 
+  // Load a saved plan into application state
+  const handleLoadPlan = (plan) => {
+    if (!plan) return;
+    if (plan.selectedCourses && plan.selectedCourses.length > 0) {
+      const hydrated = plan.selectedCourses
+        .map((item) => {
+          const matchCourse = coursesData.courses.find(
+            (c) =>
+              c.code === item.courseCode ||
+              c.courseNumber === item.courseNumber ||
+              c.codeStr === item.codeStr
+          );
+          if (!matchCourse) return null;
+          const matchSection = item.sectionNumber
+            ? matchCourse.sections.find((s) => s.sectionNumber === item.sectionNumber)
+            : matchCourse.sections.find((s) => s.hasSchedule) || matchCourse.sections[0];
+          return { course: matchCourse, section: matchSection };
+        })
+        .filter(Boolean);
+      setSelectedCourses(hydrated);
+    } else {
+      setSelectedCourses([]);
+    }
+
+    if (plan.blockedSlots) {
+      setBlockedSlots(new Set(plan.blockedSlots));
+    }
+    if (plan.targetTotalCount) {
+      setTargetTotalCount(plan.targetTotalCount);
+    }
+    setActiveVariation(null);
+  };
+
+  // Auto-save current selections to localStorage
+  useEffect(() => {
+    saveState({
+      selectedCourses: selectedCourses.map((item) => ({
+        courseCode: item.course.code,
+        courseNumber: item.course.courseNumber,
+        sectionNumber: item.section?.sectionNumber || null,
+      })),
+      blockedSlots: Array.from(blockedSlots),
+      targetTotalCount,
+    });
+  }, [selectedCourses, blockedSlots, targetTotalCount]);
+
   // Reset all selections
   const handleResetAll = () => {
     if (window.confirm('Tüm ders seçimlerini ve bloklu saatleri sıfırlamak istediğinize emin misiniz?')) {
@@ -223,9 +269,10 @@ export default function App() {
             <button
               onClick={() => setIsExportOpen(true)}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-900/20 transition-all transform hover:scale-[1.02]"
+              title="Seçimleri Kaydet, JSON Olarak İndir/Yükle veya Görsel Olarak Dışa Aktar"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Programı Dışa Aktar / Yazdır</span>
+              <BookmarkPlus className="w-3.5 h-3.5" />
+              <span>Seçimleri Kaydet / Dışa Aktar</span>
             </button>
           </div>
         </div>
@@ -296,7 +343,11 @@ export default function App() {
         onClose={() => setIsExportOpen(false)}
         timetableRef={timetableRef}
         scheduledCourses={displayScheduledItems}
+        blockedSlots={blockedSlots}
+        targetTotalCount={targetTotalCount}
         metadata={coursesData.metadata}
+        onLoadPlan={handleLoadPlan}
+        allCourses={coursesData.courses}
       />
 
       <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />

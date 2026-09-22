@@ -1,8 +1,18 @@
 // src/components/Timetable.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { DAYS, TIME_SLOTS, getSlotKey } from '../utils/timeSlots';
 import { getCourseColor } from '../utils/colors';
-import { Lock, AlertTriangle, Sparkles, Building, User, CheckCircle, ExternalLink } from 'lucide-react';
+import {
+  Lock,
+  AlertTriangle,
+  Sparkles,
+  Building,
+  User,
+  CheckCircle,
+  ExternalLink,
+  Copy,
+  Check,
+} from 'lucide-react';
 import { getCoursePrerequisite } from '../utils/prerequisites';
 import { getRegistrationInfo, REG_TYPE_CONFIG } from '../utils/registration';
 
@@ -13,6 +23,26 @@ export default function Timetable({
   previewItems = null, // [{ course, section }] for hover preview
   timetableRef,
 }) {
+  const [copiedCourseCode, setCopiedCourseCode] = useState(null);
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const handleCopyCourseCode = (e, course, section) => {
+    e.stopPropagation();
+    const sisCode =
+      course.code ||
+      `5690${String(course.courseNumber).padStart(3, '0')}`;
+    navigator.clipboard.writeText(sisCode);
+    setCopiedCourseCode(course.code || sisCode);
+    setToastMessage(`Kopyalandı: ${sisCode} (${course.codeStr} - Section ${section?.sectionNumber || 1})`);
+
+    setTimeout(() => {
+      setCopiedCourseCode((prev) => (prev === (course.code || sisCode) ? null : prev));
+    }, 1800);
+
+    setTimeout(() => {
+      setToastMessage((prev) => (prev?.includes(sisCode) ? null : prev));
+    }, 2800);
+  };
   // Construct lookup maps for fast cell rendering:
   // cellOccupants[key] = array of { course, section, isElective }
   const cellOccupants = {};
@@ -178,22 +208,41 @@ export default function Timetable({
                         const regInfo = getRegistrationInfo(occ.course.codeStr);
                         const regCfg = regInfo ? REG_TYPE_CONFIG[regInfo.type] : null;
 
+                        const sisCode =
+                          occ.course.code ||
+                          `5690${String(occ.course.courseNumber).padStart(3, '0')}`;
+                        const isCopied = copiedCourseCode === occ.course.code || copiedCourseCode === sisCode;
+                        const isInteractive = !regInfo || regInfo.type === 'interactive';
+
                         return (
                           <div
                             key={idx}
-                            className={`p-1.5 rounded-lg border shadow-xs transition-transform hover:scale-[1.01] cursor-pointer group w-full min-w-0 overflow-hidden ${style.bg} ${style.border} ${style.text}`}
+                            onClick={(e) => handleCopyCourseCode(e, occ.course, occ.section)}
+                            className={`p-1.5 rounded-lg border shadow-xs transition-transform hover:scale-[1.01] cursor-pointer group w-full min-w-0 overflow-hidden relative ${style.bg} ${style.border} ${style.text}`}
                             title={`${occ.course.codeStr} - ${occ.course.name}\nSection: ${
                               occ.section.sectionNumber
                             }\nDerslik: ${occ.blockClassroom || 'ME'} (${
                               occ.blockBuilding || ''
                             })\nÖğretim Üyesi: ${
                               occ.section.instructors?.map((i) => i.name).join(', ') || 'Belirtilmedi'
-                            }${prereq ? `\nÖn Şart: ${prereq}` : ''}${regInfo ? `\nKayıt Yöntemi: ${regCfg?.label}` : ''}`}
+                            }${prereq ? `\nÖn Şart: ${prereq}` : ''}${
+                              regInfo ? `\nKayıt Yöntemi: ${regCfg?.label}` : '\nKayıt Yöntemi: İnteraktif Kayıt'
+                            }\n\n📋 Tıkla: 7 haneli ODTÜ kodunu (${sisCode}) panoya kopyalar!`}
                           >
+                            {/* Copied Flash Overlay */}
+                            {isCopied && (
+                              <div className="absolute inset-0 bg-emerald-600/95 text-white flex flex-col items-center justify-center text-center p-1 rounded-lg z-30 animate-in fade-in zoom-in-95 duration-150">
+                                <Check className="w-4 h-4 stroke-[3]" />
+                                <span className="font-mono font-bold text-xs">{sisCode}</span>
+                                <span className="text-[9px] opacity-95 font-medium">Panoya Kopyalandı!</span>
+                              </div>
+                            )}
+
                             {/* Course Code and Section */}
                             <div className="flex items-center justify-between gap-1 leading-none min-w-0 w-full">
-                              <span className="font-bold tracking-tight text-[11px] truncate min-w-0">
-                                {occ.course.codeStr}
+                              <span className="font-bold tracking-tight text-[11px] truncate min-w-0 flex items-center gap-1">
+                                <span>{occ.course.codeStr}</span>
+                                <Copy className="w-2.5 h-2.5 opacity-60 group-hover:opacity-100 shrink-0 transition-opacity" />
                               </span>
                               <span
                                 className={`text-[9px] px-1 py-0.2 rounded font-semibold shrink-0 ${
@@ -242,10 +291,13 @@ export default function Timetable({
                             )}
 
                             {/* Registration Method Badge (Kayıt Yöntemi) */}
-                            {regCfg && (
+                            {regCfg ? (
                               <div className="mt-1 pt-1 border-t border-white/20 flex items-center justify-between gap-1 text-[8.5px] min-w-0 w-full">
-                                <span className={`px-1 py-0.2 rounded-full font-semibold border truncate min-w-0 ${regCfg.badgeClass}`}>
-                                  {regCfg.shortLabel}
+                                <span className={`px-1 py-0.2 rounded-full font-semibold border truncate min-w-0 flex items-center gap-0.5 ${regCfg.badgeClass}`}>
+                                  {isInteractive && <Copy className="w-2 h-2 shrink-0" />}
+                                  <span className="truncate">
+                                    {isInteractive ? `İnteraktif: ${sisCode}` : regCfg.shortLabel}
+                                  </span>
                                 </span>
                                 {regInfo?.formUrl && (
                                   <a
@@ -260,6 +312,14 @@ export default function Timetable({
                                     <ExternalLink className="w-2 h-2 inline" />
                                   </a>
                                 )}
+                              </div>
+                            ) : (
+                              /* Standard Interactive Registration for 1xx, 2xx, 3xx courses (e.g. ME 301) */
+                              <div className="mt-1 pt-1 border-t border-white/20 flex items-center justify-between gap-1 text-[8.5px] min-w-0 w-full">
+                                <span className="px-1 py-0.2 rounded-full font-semibold border truncate min-w-0 bg-emerald-500/20 text-emerald-200 border-emerald-500/40 flex items-center gap-0.5">
+                                  <Copy className="w-2 h-2 shrink-0" />
+                                  <span className="truncate font-mono">İnteraktif: {sisCode}</span>
+                                </span>
                               </div>
                             )}
                           </div>
@@ -296,7 +356,7 @@ export default function Timetable({
         <div className="flex items-center gap-2">
           <span className="text-slate-500">İpucu:</span>
           <span>
-            Kutucuklara tıklayarak istediğiniz gün ve saati kapatıp açabilirsiniz.
+            Ders kartına tıklayarak <strong>7 haneli interaktif kayıt kodunu ({'5690xxx'})</strong> kopyalayabilirsiniz. Boş kutucuklara tıklayarak o saati kapatıp açabilirsiniz.
           </span>
         </div>
         <div className="text-slate-500">
@@ -306,6 +366,17 @@ export default function Timetable({
           </span>
         </div>
       </div>
+
+      {/* Toast Notification for Copied Code */}
+      {toastMessage && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl bg-slate-900/95 dark:bg-slate-100/95 text-white dark:text-slate-900 text-xs font-semibold shadow-2xl flex items-center gap-2 border border-slate-700 dark:border-slate-300 animate-in fade-in slide-in-from-bottom-4 duration-200 pointer-events-none">
+          <CheckCircle className="w-4 h-4 text-emerald-400 dark:text-emerald-600 shrink-0" />
+          <span>{toastMessage}</span>
+          <span className="text-[10px] opacity-75 font-normal ml-1 border-l border-white/20 dark:border-slate-700 pl-2 hidden sm:inline">
+            register.metu.edu.tr sistemine yapıştırabilirsiniz
+          </span>
+        </div>
+      )}
     </div>
   );
 }
