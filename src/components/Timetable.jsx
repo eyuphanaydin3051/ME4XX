@@ -2,7 +2,9 @@
 import React from 'react';
 import { DAYS, TIME_SLOTS, getSlotKey } from '../utils/timeSlots';
 import { getCourseColor } from '../utils/colors';
-import { Lock, AlertTriangle, Sparkles, Building, User } from 'lucide-react';
+import { Lock, AlertTriangle, Sparkles, Building, User, CheckCircle, ExternalLink } from 'lucide-react';
+import { getCoursePrerequisite } from '../utils/prerequisites';
+import { getRegistrationInfo, REG_TYPE_CONFIG } from '../utils/registration';
 
 export default function Timetable({
   scheduledItems = [], // [{ course, section, isElective?: boolean }]
@@ -79,10 +81,18 @@ export default function Timetable({
 
       {/* Grid Container */}
       <div className="overflow-x-auto" ref={timetableRef}>
-        <table className="w-full border-collapse min-w-[700px] select-none text-left">
+        <table className="w-full border-collapse table-fixed select-none text-left min-w-[700px]">
+          <colgroup>
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '18%' }} />
+            <col style={{ width: '18%' }} />
+            <col style={{ width: '18%' }} />
+            <col style={{ width: '18%' }} />
+            <col style={{ width: '18%' }} />
+          </colgroup>
           <thead>
             <tr className="bg-slate-100 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300">
-              <th className="p-3 w-28 text-center border-r border-slate-200 dark:border-slate-800/80">
+              <th className="p-3 text-center border-r border-slate-200 dark:border-slate-800/80">
                 Saat / Slot
               </th>
               {DAYS.map((day) => (
@@ -102,8 +112,8 @@ export default function Timetable({
             {TIME_SLOTS.map((slot) => (
               <tr key={slot.index} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
                 {/* Time Label Column */}
-                <td className="p-2.5 text-center bg-slate-50/80 dark:bg-slate-950/40 border-r border-slate-200 dark:border-slate-800/80">
-                  <div className="font-semibold text-slate-800 dark:text-slate-200">{slot.start}</div>
+                <td className="p-2 text-center bg-slate-50/80 dark:bg-slate-950/40 border-r border-slate-200 dark:border-slate-800/80">
+                  <div className="font-semibold text-slate-800 dark:text-slate-200 text-xs">{slot.start}</div>
                   <div className="text-[10px] text-slate-500 dark:text-slate-400">{slot.end}</div>
                   <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">
                     {slot.period}
@@ -127,7 +137,7 @@ export default function Timetable({
                           onToggleBlockSlot(cellKey);
                         }
                       }}
-                      className={`p-1.5 border-r last:border-r-0 border-slate-200 dark:border-slate-800/60 relative h-16 align-top transition-all ${
+                      className={`p-1.5 border-r last:border-r-0 border-slate-200 dark:border-slate-800/60 relative min-h-[78px] align-top transition-all ${
                         isBlocked
                           ? 'bg-rose-50/90 dark:bg-rose-950/40 cursor-pointer hover:bg-rose-100 dark:hover:bg-rose-900/50 bg-[radial-gradient(#f43f5e_1px,transparent_1px)] [background-size:8px_8px]'
                           : occupants.length === 0
@@ -137,7 +147,7 @@ export default function Timetable({
                     >
                       {/* Blocked Slot Indicator */}
                       {isBlocked && occupants.length === 0 && (
-                        <div className="h-full w-full rounded flex flex-col items-center justify-center text-rose-600 dark:text-rose-400/80 gap-0.5 pointer-events-none">
+                        <div className="h-full w-full py-4 rounded flex flex-col items-center justify-center text-rose-600 dark:text-rose-400/80 gap-0.5 pointer-events-none">
                           <Lock className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400/90" />
                           <span className="text-[10px] font-medium tracking-tight">
                             Kapalı
@@ -157,26 +167,33 @@ export default function Timetable({
                       {occupants.map((occ, idx) => {
                         const style = getCourseColor(occ.course.code);
                         const isElective = occ.isElective || occ.course.isME4;
+                        const isMust4xx = occ.course.courseNumber === '407' || occ.course.courseNumber === '410';
+                        const prereq = getCoursePrerequisite(occ.course.codeStr);
+                        const regInfo = getRegistrationInfo(occ.course.codeStr);
+                        const regCfg = regInfo ? REG_TYPE_CONFIG[regInfo.type] : null;
 
                         return (
                           <div
                             key={idx}
-                            className={`p-1.5 rounded-lg border shadow-xs transition-transform hover:scale-[1.02] cursor-pointer group ${style.bg} ${style.border} ${style.text}`}
+                            className={`p-1.5 rounded-lg border shadow-xs transition-transform hover:scale-[1.01] cursor-pointer group ${style.bg} ${style.border} ${style.text}`}
                             title={`${occ.course.codeStr} - ${occ.course.name}\nSection: ${
                               occ.section.sectionNumber
                             }\nDerslik: ${occ.blockClassroom || 'ME'} (${
                               occ.blockBuilding || ''
                             })\nÖğretim Üyesi: ${
                               occ.section.instructors?.map((i) => i.name).join(', ') || 'Belirtilmedi'
-                            }`}
+                            }${prereq ? `\nÖn Şart: ${prereq}` : ''}${regInfo ? `\nKayıt Yöntemi: ${regCfg?.label}` : ''}`}
                           >
+                            {/* Course Code and Section */}
                             <div className="flex items-center justify-between gap-1 leading-none">
-                              <span className="font-bold tracking-tight text-[11px]">
+                              <span className="font-bold tracking-tight text-[11px] truncate">
                                 {occ.course.codeStr}
                               </span>
                               <span
-                                className={`text-[9px] px-1 py-0.2 rounded font-semibold ${
-                                  isElective
+                                className={`text-[9px] px-1 py-0.2 rounded font-semibold shrink-0 ${
+                                  isMust4xx
+                                    ? 'bg-blue-400/40 text-blue-100 border border-blue-300/50'
+                                    : isElective
                                     ? 'bg-amber-400/30 text-amber-100 border border-amber-300/40'
                                     : 'bg-white/20 text-white'
                                 }`}
@@ -185,22 +202,58 @@ export default function Timetable({
                               </span>
                             </div>
 
-                            <div className="mt-1 flex items-center justify-between text-[10px] opacity-90 truncate">
+                            {/* Classroom & Category Indicator */}
+                            <div className="mt-1 flex items-center justify-between text-[10px] opacity-90 truncate gap-1">
                               <span className="truncate flex items-center gap-0.5">
                                 <Building className="w-2.5 h-2.5 inline shrink-0" />
                                 {occ.blockClassroom || 'ME'}
                               </span>
-                              {isElective && (
-                                <span className="text-[9px] text-amber-200 font-medium">
+                              {isMust4xx ? (
+                                <span className="text-[8.5px] px-1 rounded bg-blue-900/60 text-blue-200 border border-blue-400/30 font-medium shrink-0">
+                                  Zorunlu
+                                </span>
+                              ) : isElective ? (
+                                <span className="text-[9px] text-amber-200 font-medium shrink-0">
                                   ME4
                                 </span>
-                              )}
+                              ) : null}
                             </div>
 
+                            {/* Instructor Full Name */}
                             {occ.section.instructors?.length > 0 && (
-                              <div className="text-[9.5px] opacity-90 truncate mt-0.5 flex items-center gap-0.5 font-medium">
+                              <div className="text-[9.5px] opacity-95 truncate mt-0.5 flex items-center gap-0.5 font-medium">
                                 <User className="w-2.5 h-2.5 inline shrink-0" />
                                 <span className="truncate">{occ.section.instructors.map(i => i.name).join(', ')}</span>
+                              </div>
+                            )}
+
+                            {/* Prerequisites (Ön Şart) */}
+                            {prereq && (
+                              <div className="text-[9px] opacity-95 truncate mt-0.5 flex items-center gap-0.5 font-medium text-amber-100">
+                                <CheckCircle className="w-2.5 h-2.5 inline shrink-0 text-amber-300" />
+                                <span className="truncate font-semibold">Ön Şart: {prereq}</span>
+                              </div>
+                            )}
+
+                            {/* Registration Method Badge (Kayıt Yöntemi) */}
+                            {regCfg && (
+                              <div className="mt-1 pt-1 border-t border-white/20 flex items-center justify-between gap-1 text-[8.5px]">
+                                <span className={`px-1 py-0.2 rounded-full font-semibold border truncate ${regCfg.badgeClass}`}>
+                                  {regCfg.shortLabel}
+                                </span>
+                                {regInfo?.formUrl && (
+                                  <a
+                                    href={regInfo.formUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="text-white hover:text-amber-200 underline flex items-center gap-0.5 shrink-0 font-medium"
+                                    title={`${occ.course.codeStr} Kayıt Formunu Aç`}
+                                  >
+                                    <span>Form</span>
+                                    <ExternalLink className="w-2 h-2 inline" />
+                                  </a>
+                                )}
                               </div>
                             )}
                           </div>
@@ -211,15 +264,15 @@ export default function Timetable({
                       {previews.length > 0 && occupants.length === 0 && (
                         <div className="p-1.5 rounded-lg border-2 border-dashed border-indigo-400/80 bg-indigo-500/20 text-indigo-700 dark:text-indigo-200 animate-pulse">
                           <div className="flex items-center justify-between gap-1 leading-none">
-                            <span className="font-bold text-[11px]">
+                            <span className="font-bold text-[11px] truncate">
                               {previews[0].course.codeStr}
                             </span>
-                            <span className="text-[9px] px-1 bg-indigo-400/30 rounded font-semibold">
+                            <span className="text-[9px] px-1 bg-indigo-400/30 rounded font-semibold shrink-0">
                               Sec {previews[0].section.sectionNumber}
                             </span>
                           </div>
-                          <div className="mt-1 text-[10px] text-indigo-600 dark:text-indigo-300 flex items-center gap-0.5">
-                            <Sparkles className="w-2.5 h-2.5" /> Önizleme
+                          <div className="mt-1 text-[10px] text-indigo-600 dark:text-indigo-300 flex items-center gap-0.5 truncate">
+                            <Sparkles className="w-2.5 h-2.5 inline shrink-0" /> Önizleme
                           </div>
                         </div>
                       )}

@@ -245,8 +245,8 @@ export default function App() {
 
         {/* 2) Alt Kısım: Solda Varyasyon Üretici, Sağda Haftalık Program & Saat Bloklama */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-          {/* Sol Kolon: Varyasyon Üretici Kartı (5 Kolon) */}
-          <div className="xl:col-span-5 space-y-6">
+          {/* Sol Kolon: Varyasyon Üretici Kartı (4 Kolon - Kompakt) */}
+          <div className="xl:col-span-4 space-y-6">
             <VariationExplorer
               allCourses={coursesData.courses}
               selectedCourses={selectedCourses}
@@ -260,8 +260,8 @@ export default function App() {
             />
           </div>
 
-          {/* Sağ Kolon: Saat Bloklama & Haftalık Ders Programı (7 Kolon) */}
-          <div className="xl:col-span-7 space-y-6">
+          {/* Sağ Kolon: Saat Bloklama & Haftalık Ders Programı (8 Kolon - Genişletilmiş Çizelge) */}
+          <div className="xl:col-span-8 space-y-6">
             <BlockedHoursManager
               blockedSlots={blockedSlots}
               onUpdateBlockedSlots={handleUpdateBlockedSlots}

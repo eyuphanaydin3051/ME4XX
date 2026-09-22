@@ -6,7 +6,7 @@
     "semesterName": "2026-2027 Fall",
     "updatedAt": "2026-09-23T00:30:07.651629+03:00",
     "totalCourses": 152,
-    "me4CoursesCount": 25
+    "me4CoursesCount": 23
   },
   "courses": [
     {
@@ -2638,8 +2638,8 @@
       "courseNumber": "407",
       "codeStr": "ME 407",
       "name": "MECHANICAL ENGINEERING DESIGN",
-      "category": "4. Sınıf (Teknik Seçmeli)",
-      "isME4": true,
+      "category": "4. Sınıf (Zorunlu)",
+      "isME4": false,
       "credits": {
         "total": 3,
         "ects": 6,
@@ -2764,15 +2764,16 @@
           ],
           "hasSchedule": true
         }
-      ]
+      ],
+      "isMust": true
     },
     {
       "code": "5690410",
       "courseNumber": "410",
       "codeStr": "ME 410",
       "name": "MECHANICAL ENGINEERING SYSTEMS LAB.",
-      "category": "4. Sınıf (Teknik Seçmeli)",
-      "isME4": true,
+      "category": "4. Sınıf (Zorunlu)",
+      "isME4": false,
       "credits": {
         "total": 3,
         "ects": 5,
@@ -3053,7 +3054,8 @@
           ],
           "hasSchedule": true
         }
-      ]
+      ],
+      "isMust": true
     },
     {
       "code": "5690411",

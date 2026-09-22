@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { generateVariations } from '../utils/solver';
 import { getRegistrationInfo, REG_TYPE_CONFIG } from '../utils/registration';
+import { getCoursePrerequisite } from '../utils/prerequisites';
 import confetti from 'canvas-confetti';
 
 const SORT_OPTIONS = [
@@ -47,10 +48,16 @@ export default function VariationExplorer({
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // All ME4 courses in the database that have at least one scheduled section
+  // All ME4 courses in the database that have at least one scheduled section (excluding must courses ME 407 and ME 410)
   const allMe4Courses = useMemo(() => {
     return allCourses
-      .filter((c) => c.isME4 && c.sections.some((s) => s.hasSchedule))
+      .filter(
+        (c) =>
+          c.isME4 &&
+          c.sections.some((s) => s.hasSchedule) &&
+          c.courseNumber !== '407' &&
+          c.courseNumber !== '410'
+      )
       .sort((a, b) => parseInt(a.courseNumber, 10) - parseInt(b.courseNumber, 10));
   }, [allCourses]);
 
@@ -328,6 +335,12 @@ export default function VariationExplorer({
                         {c.name}
                       </div>
 
+                      {getCoursePrerequisite(c.codeStr) && (
+                        <div className="text-[10px] text-amber-700 dark:text-amber-300 font-medium flex items-center gap-1 mt-0.5">
+                          <span className="font-bold">Ön Şart:</span> {getCoursePrerequisite(c.codeStr)}
+                        </div>
+                      )}
+
                       {/* Registration Info Callout (from PDF) */}
                       {regInfo && (
                         <div className="mt-2 p-2 rounded-lg bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-500/30 text-[11px] space-y-1">
@@ -555,6 +568,11 @@ export default function VariationExplorer({
                             <div className="text-[11px] text-slate-600 dark:text-slate-400 truncate mt-0.5">
                               {item.course.name}
                             </div>
+                            {getCoursePrerequisite(item.course.codeStr) && (
+                              <div className="text-[10px] text-amber-700 dark:text-amber-300 font-medium flex items-center gap-1 mt-0.5">
+                                <span className="font-bold">Ön Şart:</span> {getCoursePrerequisite(item.course.codeStr)}
+                              </div>
+                            )}
                             {reg && (
                               <div className="text-[10px] text-purple-700 dark:text-purple-300/90 truncate mt-0.5" title={reg.notes}>
                                 {reg.notes}

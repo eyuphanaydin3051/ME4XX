@@ -21,13 +21,14 @@ import {
 import { schedulesConflict, sectionConflictsWithBlocked } from '../utils/timeSlots';
 import { getCourseColor } from '../utils/colors';
 import { getRegistrationInfo, REG_TYPE_CONFIG } from '../utils/registration';
+import { getCoursePrerequisite } from '../utils/prerequisites';
 
 const CATEGORIES = [
   { id: 'all', label: 'Tüm ME Dersleri' },
   { id: '1. Sınıf', label: '1. Sınıf (1xx)' },
   { id: '2. Sınıf', label: '2. Sınıf (2xx)' },
   { id: '3. Sınıf', label: '3. Sınıf (3xx)' },
-  { id: '4. Sınıf (Teknik Seçmeli)', label: '4. Sınıf (4xx Seçmeli)' },
+  { id: '4. Sınıf', label: '4. Sınıf (4xx Zorunlu & Seçmeli)' },
   { id: 'Lisansüstü', label: 'Lisansüstü (5xx+)' },
 ];
 
@@ -49,8 +50,12 @@ export default function CourseSelector({
   const filteredCourses = useMemo(() => {
     return allCourses.filter((course) => {
       // Category filter
-      if (selectedCategory !== 'all' && course.category !== selectedCategory) {
-        return false;
+      if (selectedCategory !== 'all') {
+        if (selectedCategory === '4. Sınıf') {
+          if (!course.category?.startsWith('4. Sınıf')) return false;
+        } else if (course.category !== selectedCategory) {
+          return false;
+        }
       }
       // Search query
       if (searchQuery.trim()) {
@@ -298,7 +303,9 @@ export default function CourseSelector({
                       <div className="flex items-center gap-2.5 min-w-0">
                         <span
                           className={`px-2 py-0.5 rounded text-xs font-bold ${
-                            course.isME4
+                            course.isMust || course.category?.includes('Zorunlu')
+                              ? 'bg-blue-500/10 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border border-blue-500/30'
+                              : course.isME4
                               ? 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30'
                               : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700'
                           }`}
@@ -309,10 +316,20 @@ export default function CourseSelector({
                           <div className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate" title={course.name}>
                             {course.name}
                           </div>
-                          <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-2 flex-wrap">
                             <span>{scheduledSections.length} Aktif Section</span>
                             {course.credits?.total > 0 && (
                               <span>• {course.credits.total} Kredi ({course.credits.ects} AKTS)</span>
+                            )}
+                            {(course.isMust || course.category?.includes('Zorunlu')) && (
+                              <span className="px-1.5 py-0.2 rounded-full font-semibold border bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30">
+                                Zorunlu (Must)
+                              </span>
+                            )}
+                            {getCoursePrerequisite(course.codeStr) && (
+                              <span className="text-amber-700 dark:text-amber-400 font-medium">
+                                • Ön Şart: {getCoursePrerequisite(course.codeStr)}
+                              </span>
                             )}
                             {regCfg && (
                               <span className={`px-1.5 py-0.2 rounded-full font-semibold border ${regCfg.badgeClass}`}>
