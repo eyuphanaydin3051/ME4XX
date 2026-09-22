@@ -25,6 +25,7 @@ export default function Timetable({
   timetableRef,
   onOpenExport,
 }) {
+  const [isCompact, setIsCompact] = useState(true);
   const [copiedCourseCode, setCopiedCourseCode] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -110,6 +111,32 @@ export default function Timetable({
             <span>Bloklu Saat</span>
           </div>
 
+          {/* Görünüm Yoğunluğu Seçici (Kompakt / Geniş) */}
+          <div className="flex items-center bg-slate-200 dark:bg-slate-800 rounded-xl p-0.5 text-[11px] font-medium">
+            <button
+              onClick={() => setIsCompact(true)}
+              className={`px-2.5 py-1 rounded-lg transition-all ${
+                isCompact
+                  ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-xs font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+              title="Tüm saatleri tek ekranda görebilmek için kompakt satır yüksekliği"
+            >
+              Kompakt (Tek Ekran)
+            </button>
+            <button
+              onClick={() => setIsCompact(false)}
+              className={`px-2.5 py-1 rounded-lg transition-all ${
+                !isCompact
+                  ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-xs font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+              title="Daha geniş satır ve kart yüksekliği"
+            >
+              Geniş
+            </button>
+          </div>
+
           {/* Takvimi Dışa Aktar Butonu */}
           {onOpenExport && (
             <button
@@ -137,7 +164,7 @@ export default function Timetable({
             <tr className="bg-slate-100 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300">
               <th
                 style={{ width: '68px', minWidth: '68px', maxWidth: '68px' }}
-                className="w-[68px] min-w-[68px] max-w-[68px] p-2 text-center border-r border-slate-200 dark:border-slate-800/80 text-[11px] font-semibold text-slate-700 dark:text-slate-300"
+                className={`w-[68px] min-w-[68px] max-w-[68px] ${isCompact ? 'py-1 px-1' : 'p-2'} text-center border-r border-slate-200 dark:border-slate-800/80 text-[11px] font-semibold text-slate-700 dark:text-slate-300`}
               >
                 Saat
               </th>
@@ -145,10 +172,10 @@ export default function Timetable({
                 <th
                   key={day.id}
                   style={{ width: 'calc((100% - 68px) / 5)' }}
-                  className="p-2.5 text-center border-r last:border-r-0 border-slate-200 dark:border-slate-800/80 font-medium max-w-0"
+                  className={`${isCompact ? 'py-1 px-1.5' : 'p-2.5'} text-center border-r last:border-r-0 border-slate-200 dark:border-slate-800/80 font-medium max-w-0`}
                 >
                   <div className="text-slate-900 dark:text-slate-100 font-semibold text-xs truncate">{day.label}</div>
-                  <div className="text-[10.5px] text-slate-500 font-normal">
+                  <div className={`${isCompact ? 'text-[9.5px]' : 'text-[10.5px]'} text-slate-500 font-normal leading-none mt-0.5`}>
                     {day.shortLabel}
                   </div>
                 </th>
@@ -161,11 +188,11 @@ export default function Timetable({
                 {/* Time Label Column (Kompakt Sol Sütun) */}
                 <td
                   style={{ width: '68px', minWidth: '68px', maxWidth: '68px' }}
-                  className="w-[68px] min-w-[68px] max-w-[68px] p-1.5 text-center bg-slate-50/80 dark:bg-slate-950/40 border-r border-slate-200 dark:border-slate-800/80 align-middle"
+                  className={`w-[68px] min-w-[68px] max-w-[68px] ${isCompact ? 'py-1 px-0.5' : 'p-1.5'} text-center bg-slate-50/80 dark:bg-slate-950/40 border-r border-slate-200 dark:border-slate-800/80 align-middle`}
                 >
                   <div className="font-bold text-slate-800 dark:text-slate-200 text-[11px] leading-tight">{slot.start}</div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">{slot.end}</div>
-                  <div className="text-[8.5px] text-slate-400 dark:text-slate-500 font-mono mt-0.5 leading-none">
+                  <div className={`${isCompact ? 'text-[9px]' : 'text-[10px]'} text-slate-500 dark:text-slate-400 leading-tight`}>{slot.end}</div>
+                  <div className={`${isCompact ? 'text-[8px]' : 'text-[8.5px]'} text-slate-400 dark:text-slate-500 font-mono mt-0.5 leading-none`}>
                     {slot.period.replace(' (Öğle)', '')}
                   </div>
                 </td>
@@ -188,7 +215,9 @@ export default function Timetable({
                           onToggleBlockSlot(cellKey);
                         }
                       }}
-                      className={`p-1.5 border-r last:border-r-0 border-slate-200 dark:border-slate-800/60 relative min-h-[78px] align-top transition-all max-w-0 overflow-hidden ${
+                      className={`${isCompact ? 'p-1' : 'p-1.5'} border-r last:border-r-0 border-slate-200 dark:border-slate-800/60 relative align-top transition-all max-w-0 overflow-hidden ${
+                        isCompact ? 'h-[50px]' : 'min-h-[78px]'
+                      } ${
                         isBlocked
                           ? 'bg-rose-50/90 dark:bg-rose-950/40 cursor-pointer hover:bg-rose-100 dark:hover:bg-rose-900/50 bg-[radial-gradient(#f43f5e_1px,transparent_1px)] [background-size:8px_8px]'
                           : occupants.length === 0
@@ -198,9 +227,9 @@ export default function Timetable({
                     >
                       {/* Blocked Slot Indicator */}
                       {isBlocked && occupants.length === 0 && (
-                        <div className="h-full w-full py-4 rounded flex flex-col items-center justify-center text-rose-600 dark:text-rose-400/80 gap-0.5 pointer-events-none">
-                          <Lock className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400/90" />
-                          <span className="text-[10px] font-medium tracking-tight">
+                        <div className={`h-full w-full ${isCompact ? 'py-1 flex-row gap-1' : 'py-4 flex-col gap-0.5'} rounded flex items-center justify-center text-rose-600 dark:text-rose-400/80 pointer-events-none`}>
+                          <Lock className={`${isCompact ? 'w-3 h-3' : 'w-3.5 h-3.5'} text-rose-600 dark:text-rose-400/90`} />
+                          <span className={`${isCompact ? 'text-[9.5px]' : 'text-[10px]'} font-medium tracking-tight`}>
                             Kapalı
                           </span>
                         </div>
@@ -233,7 +262,7 @@ export default function Timetable({
                           <div
                             key={idx}
                             onClick={(e) => handleCopyCourseCode(e, occ.course, occ.section)}
-                            className={`p-1.5 rounded-lg border shadow-xs transition-transform hover:scale-[1.01] cursor-pointer group w-full min-w-0 overflow-hidden relative ${style.bg} ${style.border} ${style.text}`}
+                            className={`${isCompact ? 'p-1 rounded-md' : 'p-1.5 rounded-lg'} border shadow-xs transition-transform hover:scale-[1.01] cursor-pointer group w-full min-w-0 overflow-hidden relative ${style.bg} ${style.border} ${style.text}`}
                             title={`${occ.course.codeStr} - ${occ.course.name}\nSection: ${
                               occ.section.sectionNumber
                             }\nDerslik: ${occ.blockClassroom || 'ME'} (${
@@ -246,73 +275,83 @@ export default function Timetable({
                           >
                             {/* Copied Flash Overlay */}
                             {isCopied && (
-                              <div className="absolute inset-0 bg-emerald-600/95 text-white flex flex-col items-center justify-center text-center p-1 rounded-lg z-30 animate-in fade-in zoom-in-95 duration-150">
-                                <Check className="w-4 h-4 stroke-[3]" />
-                                <span className="font-mono font-bold text-xs">{sisCode}</span>
-                                <span className="text-[9px] opacity-95 font-medium">Panoya Kopyalandı!</span>
+                              <div className={`absolute inset-0 bg-emerald-600/95 text-white flex ${isCompact ? 'items-center justify-center gap-1 p-0.5' : 'flex-col items-center justify-center p-1'} rounded-md z-30 animate-in fade-in zoom-in-95 duration-150`}>
+                                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                <span className="font-mono font-bold text-[10px]">{sisCode}</span>
+                                <span className="text-[9px] opacity-90 font-medium">{isCompact ? 'Kopyalandı' : 'Panoya Kopyalandı!'}</span>
                               </div>
                             )}
 
-                            {/* Course Code and Section */}
+                            {/* Line 1: Course Code and Section */}
                             <div className="flex items-center justify-between gap-1 leading-none min-w-0 w-full">
-                              <span className="font-bold tracking-tight text-[11px] truncate min-w-0 flex items-center gap-1">
+                              <span className="font-bold tracking-tight text-[11px] truncate min-w-0 flex items-center gap-0.5">
                                 <span>{occ.course.codeStr}</span>
                                 <Copy className="w-2.5 h-2.5 opacity-60 group-hover:opacity-100 shrink-0 transition-opacity" />
                               </span>
-                              <span
-                                className={`text-[9px] px-1 py-0.2 rounded font-semibold shrink-0 ${
-                                  isMust4xx
-                                    ? 'bg-blue-400/40 text-blue-100 border border-blue-300/50'
-                                    : isElective
-                                    ? 'bg-amber-400/30 text-amber-100 border border-amber-300/40'
-                                    : 'bg-white/20 text-white'
-                                }`}
-                              >
-                                Sec {occ.section.sectionNumber}
-                              </span>
+                              <div className="flex items-center gap-0.5 shrink-0">
+                                <span
+                                  className={`text-[9px] px-1 py-0.2 rounded font-semibold shrink-0 ${
+                                    isMust4xx
+                                      ? 'bg-blue-400/40 text-blue-100 border border-blue-300/50'
+                                      : isElective
+                                      ? 'bg-amber-400/30 text-amber-100 border border-amber-300/40'
+                                      : 'bg-white/20 text-white'
+                                  }`}
+                                >
+                                  {isCompact ? `S${occ.section.sectionNumber}` : `Sec ${occ.section.sectionNumber}`}
+                                </span>
+                                {isMust4xx ? (
+                                  <span className="text-[8px] px-1 rounded bg-blue-900/60 text-blue-200 border border-blue-400/30 font-medium shrink-0">
+                                    Zorunlu
+                                  </span>
+                                ) : isElective ? (
+                                  <span className="text-[8.5px] px-0.5 rounded bg-amber-400/20 text-amber-200 font-medium shrink-0">
+                                    ME4
+                                  </span>
+                                ) : null}
+                              </div>
                             </div>
 
-                            {/* Classroom & Category Indicator */}
-                            <div className="mt-1 flex items-center justify-between text-[10px] opacity-90 gap-1 min-w-0 w-full">
+                            {/* Line 2: Classroom & Instructor */}
+                            <div className={`${isCompact ? 'mt-0.5' : 'mt-1'} flex items-center justify-between text-[9.5px] opacity-90 gap-1 min-w-0 w-full leading-none`}>
                               <span className="truncate min-w-0 flex items-center gap-0.5">
-                                <Building className="w-2.5 h-2.5 inline shrink-0" />
+                                <Building className="w-2 h-2 inline shrink-0 opacity-80" />
                                 <span className="truncate min-w-0">{occ.blockClassroom || 'ME'}</span>
                               </span>
-                              {isMust4xx ? (
-                                <span className="text-[8.5px] px-1 rounded bg-blue-900/60 text-blue-200 border border-blue-400/30 font-medium shrink-0">
-                                  Zorunlu
+                              {occ.section.instructors?.length > 0 && (
+                                <span className="truncate min-w-0 flex items-center gap-0.5 text-[9px] opacity-95">
+                                  <User className="w-2 h-2 inline shrink-0 opacity-80" />
+                                  <span className="truncate min-w-0">
+                                    {isCompact
+                                      ? occ.section.instructors.map((i) => i.name.split(' ').pop()).join(', ')
+                                      : occ.section.instructors.map((i) => i.name).join(', ')}
+                                  </span>
                                 </span>
-                              ) : isElective ? (
-                                <span className="text-[9px] text-amber-200 font-medium shrink-0">
-                                  ME4
-                                </span>
-                              ) : null}
+                              )}
                             </div>
 
-                            {/* Instructor Full Name */}
-                            {occ.section.instructors?.length > 0 && (
-                              <div className="text-[9.5px] opacity-95 mt-0.5 flex items-center gap-0.5 font-medium min-w-0 w-full">
-                                <User className="w-2.5 h-2.5 inline shrink-0" />
-                                <span className="truncate min-w-0">{occ.section.instructors.map(i => i.name).join(', ')}</span>
-                              </div>
-                            )}
+                            {/* Line 3: Prerequisites & Registration (SIS Code or Form) */}
+                            <div className={`${isCompact ? 'mt-0.5 pt-0.5' : 'mt-1 pt-1'} border-t border-white/20 flex items-center justify-between gap-1 text-[8.5px] min-w-0 w-full leading-none`}>
+                              {prereq ? (
+                                <span
+                                  className="truncate min-w-0 text-amber-200 font-medium text-[8px] flex items-center gap-0.5"
+                                  title={`Ön Şart: ${prereq}`}
+                                >
+                                  <CheckCircle className="w-2 h-2 inline shrink-0 text-amber-300" />
+                                  <span className="truncate">Ön: {prereq.replace('ME ', '')}</span>
+                                </span>
+                              ) : (
+                                <span />
+                              )}
 
-                            {/* Prerequisites (Ön Şart) */}
-                            {prereq && (
-                              <div className="text-[9px] opacity-95 mt-0.5 flex items-center gap-0.5 font-medium text-amber-100 min-w-0 w-full">
-                                <CheckCircle className="w-2.5 h-2.5 inline shrink-0 text-amber-300" />
-                                <span className="truncate min-w-0 font-semibold">Ön Şart: {prereq}</span>
-                              </div>
-                            )}
-
-                            {/* Registration Method Badge (Kayıt Yöntemi) */}
-                            {regCfg ? (
-                              <div className="mt-1 pt-1 border-t border-white/20 flex items-center justify-between gap-1 text-[8.5px] min-w-0 w-full">
-                                <span className={`px-1 py-0.2 rounded-full font-semibold border truncate min-w-0 flex items-center gap-0.5 ${regCfg.badgeClass}`}>
-                                  {isInteractive && <Copy className="w-2 h-2 shrink-0" />}
-                                  <span className="truncate">
-                                    {isInteractive ? `İnteraktif: ${sisCode}` : regCfg.shortLabel}
-                                  </span>
+                              <div className="flex items-center gap-0.5 shrink-0 ml-auto">
+                                <span
+                                  className={`px-1 py-0.2 rounded font-mono text-[8.5px] flex items-center gap-0.5 font-semibold ${
+                                    regCfg?.badgeClass || 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/40'
+                                  }`}
+                                  title={`${occ.course.codeStr} ODTÜ Kodu: ${sisCode}`}
+                                >
+                                  {sisCode}
                                 </span>
                                 {regInfo?.formUrl && (
                                   <a
@@ -320,39 +359,30 @@ export default function Timetable({
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     onClick={(e) => e.stopPropagation()}
-                                    className="text-white hover:text-amber-200 underline flex items-center gap-0.5 shrink-0 font-medium"
+                                    className="text-white hover:text-amber-200 underline font-medium p-0.5"
                                     title={`${occ.course.codeStr} Kayıt Formunu Aç`}
                                   >
-                                    <span>Form</span>
-                                    <ExternalLink className="w-2 h-2 inline" />
+                                    <ExternalLink className="w-2.5 h-2.5 inline" />
                                   </a>
                                 )}
                               </div>
-                            ) : (
-                              /* Standard Interactive Registration for 1xx, 2xx, 3xx courses (e.g. ME 301) */
-                              <div className="mt-1 pt-1 border-t border-white/20 flex items-center justify-between gap-1 text-[8.5px] min-w-0 w-full">
-                                <span className="px-1 py-0.2 rounded-full font-semibold border truncate min-w-0 bg-emerald-500/20 text-emerald-200 border-emerald-500/40 flex items-center gap-0.5">
-                                  <Copy className="w-2 h-2 shrink-0" />
-                                  <span className="truncate font-mono">İnteraktif: {sisCode}</span>
-                                </span>
-                              </div>
-                            )}
+                            </div>
                           </div>
                         );
                       })}
 
                       {/* Preview Occupant Cards (Dashed Outline) */}
                       {previews.length > 0 && occupants.length === 0 && (
-                        <div className="p-1.5 rounded-lg border-2 border-dashed border-indigo-400/80 bg-indigo-500/20 text-indigo-700 dark:text-indigo-200 animate-pulse w-full min-w-0 overflow-hidden">
+                        <div className={`${isCompact ? 'p-1 rounded-md' : 'p-1.5 rounded-lg'} border-2 border-dashed border-indigo-400/80 bg-indigo-500/20 text-indigo-700 dark:text-indigo-200 animate-pulse w-full min-w-0 overflow-hidden`}>
                           <div className="flex items-center justify-between gap-1 leading-none min-w-0 w-full">
                             <span className="font-bold text-[11px] truncate min-w-0">
                               {previews[0].course.codeStr}
                             </span>
                             <span className="text-[9px] px-1 bg-indigo-400/30 rounded font-semibold shrink-0">
-                              Sec {previews[0].section.sectionNumber}
+                              S{previews[0].section.sectionNumber}
                             </span>
                           </div>
-                          <div className="mt-1 text-[10px] text-indigo-600 dark:text-indigo-300 flex items-center gap-0.5 truncate min-w-0">
+                          <div className={`${isCompact ? 'mt-0.5' : 'mt-1'} text-[9px] text-indigo-600 dark:text-indigo-300 flex items-center gap-0.5 truncate min-w-0 leading-none`}>
                             <Sparkles className="w-2.5 h-2.5 inline shrink-0" /> <span className="truncate min-w-0">Önizleme</span>
                           </div>
                         </div>
