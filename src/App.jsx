@@ -219,39 +219,23 @@ export default function App() {
           </div>
         </div>
 
-        {/* 2-Column Responsive Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Course Selector & Selected Courses (5 cols on lg) */}
-          <div className="lg:col-span-5 space-y-6">
-            <CourseSelector
-              allCourses={coursesData.courses}
-              selectedCourses={selectedCourses}
-              onAddCourse={handleAddCourse}
-              onRemoveCourse={handleRemoveCourse}
-              onChangeCourseSection={handleChangeCourseSection}
-              blockedSlots={blockedSlots}
-              onPreviewHover={setPreviewItems}
-            />
-          </div>
+        {/* 1) Top: ME Ders Kataloğu Tek Başına En Üstte Kart */}
+        <div className="w-full">
+          <CourseSelector
+            allCourses={coursesData.courses}
+            selectedCourses={selectedCourses}
+            onAddCourse={handleAddCourse}
+            onRemoveCourse={handleRemoveCourse}
+            onChangeCourseSection={handleChangeCourseSection}
+            blockedSlots={blockedSlots}
+            onPreviewHover={setPreviewItems}
+          />
+        </div>
 
-          {/* Right Column: Blocked Hours, Timetable, & Variation Optimizer (7 cols on lg) */}
-          <div className="lg:col-span-7 space-y-6">
-            {/* Blocked Hours Controls */}
-            <BlockedHoursManager
-              blockedSlots={blockedSlots}
-              onUpdateBlockedSlots={handleUpdateBlockedSlots}
-            />
-
-            {/* Weekly Timetable Grid */}
-            <Timetable
-              scheduledItems={displayScheduledItems}
-              blockedSlots={blockedSlots}
-              onToggleBlockSlot={handleToggleBlockSlot}
-              previewItems={previewItems}
-              timetableRef={timetableRef}
-            />
-
-            {/* ME4 Variation Optimizer & Generator */}
+        {/* 2) Alt Kısım: Solda Varyasyon Üretici, Sağda Haftalık Program & Saat Bloklama */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+          {/* Sol Kolon: Varyasyon Üretici Kartı (5 Kolon) */}
+          <div className="xl:col-span-5 space-y-6">
             <VariationExplorer
               allCourses={coursesData.courses}
               selectedCourses={selectedCourses}
@@ -262,6 +246,22 @@ export default function App() {
               onSelectVariation={setActiveVariation}
               onPinVariation={handlePinVariation}
               onPreviewHover={setPreviewItems}
+            />
+          </div>
+
+          {/* Sağ Kolon: Saat Bloklama & Haftalık Ders Programı (7 Kolon) */}
+          <div className="xl:col-span-7 space-y-6">
+            <BlockedHoursManager
+              blockedSlots={blockedSlots}
+              onUpdateBlockedSlots={handleUpdateBlockedSlots}
+            />
+
+            <Timetable
+              scheduledItems={displayScheduledItems}
+              blockedSlots={blockedSlots}
+              onToggleBlockSlot={handleToggleBlockSlot}
+              previewItems={previewItems}
+              timetableRef={timetableRef}
             />
           </div>
         </div>

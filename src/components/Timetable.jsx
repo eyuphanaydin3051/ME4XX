@@ -197,10 +197,10 @@ export default function Timetable({
                               )}
                             </div>
 
-                            {occ.section.instructors?.[0]?.name && (
-                              <div className="text-[9px] opacity-75 truncate mt-0.5 flex items-center gap-0.5">
+                            {occ.section.instructors?.length > 0 && (
+                              <div className="text-[9.5px] opacity-90 truncate mt-0.5 flex items-center gap-0.5 font-medium">
                                 <User className="w-2.5 h-2.5 inline shrink-0" />
-                                {occ.section.instructors[0].name.split(' ').slice(-1)[0]}
+                                <span className="truncate">{occ.section.instructors.map(i => i.name).join(', ')}</span>
                               </div>
                             )}
                           </div>

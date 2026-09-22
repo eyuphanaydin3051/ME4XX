@@ -199,10 +199,10 @@ export default function VariationExplorer({
         {/* Filter Drawer Toggle */}
         <button
           onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-950/40 hover:bg-indigo-900/50 text-indigo-300 border border-indigo-500/30 transition-all font-medium"
         >
           <Filter className="w-3.5 h-3.5 text-indigo-400" />
-          <span>ME4 Havuzu ({enabledMe4Codes.size}/{allMe4Courses.length})</span>
+          <span>🎯 ME4 Aday Havuzunu Özelleştir ({enabledMe4Codes.size}/{allMe4Courses.length} Ders Seçili)</span>
           {isFilterOpen ? (
             <ChevronUp className="w-3.5 h-3.5" />
           ) : (
@@ -211,53 +211,117 @@ export default function VariationExplorer({
         </button>
       </div>
 
-      {/* Expandable ME4 Filter Checklist */}
+      {/* Expandable ME4 Filter Checklist - 2 Columns Horizontal Layout with Rich Details */}
       {isFilterOpen && (
-        <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-2.5 animate-in fade-in duration-200">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-300">
-              Varyasyonlarda Denenecek ME4 Derslerini Seçin:
-            </span>
-            <div className="flex items-center gap-2 text-[11px]">
+        <div className="p-4 bg-slate-950/90 rounded-2xl border border-indigo-500/30 space-y-3 animate-in fade-in duration-200">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+            <div>
+              <div className="text-xs font-bold text-slate-100 flex items-center gap-1.5">
+                <span>📋 ME4 Teknik Seçmeli Aday Ders Havuzu</span>
+                <span className="text-[11px] font-normal text-indigo-400">
+                  ({enabledMe4Codes.size} / {allMe4Courses.length} ders aktif)
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 m-0 mt-0.5">
+                Varyasyon motorunun aralarından programınıza eklemesini istediğiniz ME4 seçmelilerini belirleyin. İstemediğiniz derslerin işaretini kaldırarak eleyebilirsiniz.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-xs shrink-0">
               <button
                 onClick={selectAllMe4}
-                className="text-indigo-400 hover:underline"
+                className="px-2.5 py-1 rounded-md bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600/50 border border-indigo-500/30 transition-colors font-medium"
               >
                 Tümünü Seç
               </button>
-              <span>•</span>
               <button
                 onClick={clearAllMe4}
-                className="text-slate-400 hover:underline"
+                className="px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700 transition-colors"
               >
                 Tümünü Kaldır
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
+          {/* 2 Columns Layout for Detailed View */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-80 overflow-y-auto pr-1">
             {allMe4Courses.map((c) => {
               const isChecked = enabledMe4Codes.has(c.code);
+              const scheduledSecs = (c.sections || []).filter((s) => s.hasSchedule);
+
               return (
-                <label
+                <div
                   key={c.code}
-                  className={`flex items-start gap-2 p-1.5 rounded-lg border text-xs cursor-pointer select-none transition-all ${
+                  onClick={() => toggleMe4Course(c.code)}
+                  className={`p-3 rounded-xl border text-xs cursor-pointer select-none transition-all flex flex-col justify-between gap-2 ${
                     isChecked
-                      ? 'bg-indigo-600/10 border-indigo-500/40 text-slate-200'
-                      : 'bg-slate-900 border-slate-800 text-slate-500'
+                      ? 'bg-indigo-950/30 border-indigo-500/50 shadow-sm shadow-indigo-950/50'
+                      : 'bg-slate-900/60 border-slate-800/80 text-slate-500 opacity-60 hover:opacity-80'
                   }`}
                 >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => toggleMe4Course(c.code)}
-                    className="mt-0.5 rounded text-indigo-600 focus:ring-0"
-                  />
-                  <div className="min-w-0">
-                    <span className="font-bold">{c.codeStr}</span>
-                    <p className="text-[10px] text-slate-400 truncate">{c.name}</p>
+                  <div className="flex items-start gap-2.5">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => {}} // handled by parent onClick
+                      className="mt-1 rounded text-indigo-600 focus:ring-0 cursor-pointer"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-1">
+                        <span
+                          className={`font-bold text-xs ${
+                            isChecked ? 'text-amber-300' : 'text-slate-400'
+                          }`}
+                        >
+                          {c.codeStr}
+                        </span>
+                        {c.credits?.total > 0 && (
+                          <span className="text-[10px] text-slate-400 bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700/60">
+                            {c.credits.total} Kredi • {c.credits.ects} AKTS
+                          </span>
+                        )}
+                      </div>
+                      <div
+                        className={`text-xs font-medium leading-tight mt-0.5 ${
+                          isChecked ? 'text-slate-200' : 'text-slate-400'
+                        }`}
+                      >
+                        {c.name}
+                      </div>
+                    </div>
                   </div>
-                </label>
+
+                  {/* Section schedule and instructor info */}
+                  {scheduledSecs.length > 0 && (
+                    <div className="pt-2 border-t border-slate-800/80 space-y-1.5 pl-6 text-[11px]">
+                      {scheduledSecs.map((sec) => (
+                        <div key={sec.sectionNumber} className="space-y-0.5">
+                          <div className="flex items-center justify-between text-slate-300">
+                            <span className="font-semibold text-indigo-300">
+                              Section {sec.sectionNumber}:
+                            </span>
+                            {sec.instructors?.length > 0 && (
+                              <span className="text-slate-300 font-medium truncate max-w-[170px]" title={sec.instructors.map((i) => i.name).join(', ')}>
+                                {sec.instructors.map((i) => i.name).join(', ')}
+                              </span>
+                            )}
+                          </div>
+                          {sec.schedule?.length > 0 && (
+                            <div className="flex flex-wrap gap-1 text-[10px] text-slate-400">
+                              {sec.schedule.map((s, idx) => (
+                                <span
+                                  key={idx}
+                                  className="px-1.5 py-0.2 rounded bg-slate-800/80 text-slate-300 border border-slate-700/60"
+                                >
+                                  {s.dayTr} {s.startHour}-{s.endHour} ({s.classroom || 'ME'})
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -396,9 +460,12 @@ export default function VariationExplorer({
                           </div>
                         </div>
 
-                        {item.section.instructors?.[0] && (
-                          <div className="text-[10px] text-slate-400 text-right shrink-0">
-                            {item.section.instructors[0].name.split(' ').slice(-1)[0]}
+                        {item.section.instructors?.length > 0 && (
+                          <div
+                            className="text-[10px] text-slate-300 font-medium text-right shrink-0 max-w-[170px] truncate"
+                            title={item.section.instructors.map((i) => i.name).join(', ')}
+                          >
+                            {item.section.instructors.map((i) => i.name).join(', ')}
                           </div>
                         )}
                       </div>
