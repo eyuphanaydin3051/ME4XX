@@ -43,8 +43,15 @@ export default function VariationExplorer({
   onSelectVariation,
   onPinVariation,
   onPreviewHover,
+  enabledMe4Codes: externalEnabledMe4Codes,
+  onChangeEnabledMe4Codes,
+  sortCriterion: externalSortCriterion,
+  onChangeSortCriterion,
 }) {
-  const [sortCriterion, setSortCriterion] = useState('free_days');
+  const [internalSortCriterion, setInternalSortCriterion] = useState('free_days');
+  const sortCriterion = externalSortCriterion !== undefined ? externalSortCriterion : internalSortCriterion;
+  const setSortCriterion = onChangeSortCriterion || setInternalSortCriterion;
+
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -69,22 +76,24 @@ export default function VariationExplorer({
       .sort((a, b) => parseInt(a.courseNumber, 10) - parseInt(b.courseNumber, 10));
   }, [allCourses]);
 
-  // Set of enabled ME4 course codes (default: all of them enabled)
-  const [enabledMe4Codes, setEnabledMe4Codes] = useState(() => {
+  const [internalEnabledMe4Codes, setInternalEnabledMe4Codes] = useState(() => {
     return new Set(allMe4Courses.map((c) => c.code));
   });
 
+  const enabledMe4Codes = externalEnabledMe4Codes !== undefined ? externalEnabledMe4Codes : internalEnabledMe4Codes;
+  const setEnabledMe4Codes = onChangeEnabledMe4Codes || setInternalEnabledMe4Codes;
+
   // Keep enabledMe4Codes in sync and purged of any excluded courses if allMe4Courses changes
   useEffect(() => {
-    if (allMe4Courses.length > 0) {
+    if (allMe4Courses.length > 0 && enabledMe4Codes) {
       const validCodeSet = new Set(allMe4Courses.map((c) => c.code));
-      setEnabledMe4Codes((prev) => {
-        if (!prev || prev.size === 0) return validCodeSet;
-        const cleaned = new Set([...prev].filter((code) => validCodeSet.has(code)));
-        return cleaned.size > 0 ? cleaned : validCodeSet;
-      });
+      const hasInvalid = Array.from(enabledMe4Codes).some((code) => !validCodeSet.has(code));
+      if (hasInvalid) {
+        const cleaned = new Set([...enabledMe4Codes].filter((code) => validCodeSet.has(code)));
+        setEnabledMe4Codes(cleaned.size > 0 ? cleaned : validCodeSet);
+      }
     }
-  }, [allMe4Courses]);
+  }, [allMe4Courses, enabledMe4Codes]);
 
   const toggleMe4Course = (code) => {
     const next = new Set(enabledMe4Codes);

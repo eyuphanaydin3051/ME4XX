@@ -53,6 +53,27 @@ export default function App() {
     return savedState?.targetTotalCount || 5;
   });
 
+  const [enabledMe4Codes, setEnabledMe4Codes] = useState(() => {
+    if (savedState?.enabledMe4Codes && Array.isArray(savedState.enabledMe4Codes)) {
+      return new Set(savedState.enabledMe4Codes);
+    }
+    return new Set(
+      initialCoursesData.courses
+        .filter(
+          (c) =>
+            c.isME4 &&
+            !c.isMust &&
+            c.sections.some((s) => s.hasSchedule) &&
+            !['407', '410', '400'].includes(c.courseNumber)
+        )
+        .map((c) => c.code)
+    );
+  });
+
+  const [sortCriterion, setSortCriterion] = useState(() => {
+    return savedState?.sortCriterion || 'free_days';
+  });
+
   const [activeVariation, setActiveVariation] = useState(null);
   const [previewItems, setPreviewItems] = useState(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -67,12 +88,15 @@ export default function App() {
     saveState({
       selectedCourses: selectedCourses.map((s) => ({
         courseCode: s.course.code,
+        courseNumber: s.course.courseNumber,
         sectionNumber: s.section ? s.section.sectionNumber : null,
       })),
       blockedSlots: Array.from(blockedSlots),
       targetTotalCount,
+      enabledMe4Codes: Array.from(enabledMe4Codes),
+      sortCriterion,
     });
-  }, [selectedCourses, blockedSlots, targetTotalCount]);
+  }, [selectedCourses, blockedSlots, targetTotalCount, enabledMe4Codes, sortCriterion]);
 
   // Timetable display items:
   // If a variation is active, show the full variation schedule (fixed + generated electives)
@@ -145,8 +169,11 @@ export default function App() {
   // Load a saved plan into application state
   const handleLoadPlan = (plan) => {
     if (!plan) return;
-    if (plan.selectedCourses && plan.selectedCourses.length > 0) {
-      const hydrated = plan.selectedCourses
+
+    // 1. Restore fixed courses
+    const coursesToRestore = plan.fixedCourses || plan.selectedCourses || [];
+    if (coursesToRestore && coursesToRestore.length > 0) {
+      const hydrated = coursesToRestore
         .map((item) => {
           const matchCourse = coursesData.courses.find(
             (c) =>
@@ -166,27 +193,29 @@ export default function App() {
       setSelectedCourses([]);
     }
 
+    // 2. Restore enabled ME4 elective candidate pool
+    if (plan.enabledMe4Codes && Array.isArray(plan.enabledMe4Codes)) {
+      setEnabledMe4Codes(new Set(plan.enabledMe4Codes));
+    }
+
+    // 3. Restore blocked slots
     if (plan.blockedSlots) {
       setBlockedSlots(new Set(plan.blockedSlots));
     }
+
+    // 4. Restore target total count
     if (plan.targetTotalCount) {
       setTargetTotalCount(plan.targetTotalCount);
     }
+
+    // 5. Restore sort criterion
+    if (plan.sortCriterion) {
+      setSortCriterion(plan.sortCriterion);
+    }
+
+    // Reset active variation so solver generates fresh variations from restored parameters
     setActiveVariation(null);
   };
-
-  // Auto-save current selections to localStorage
-  useEffect(() => {
-    saveState({
-      selectedCourses: selectedCourses.map((item) => ({
-        courseCode: item.course.code,
-        courseNumber: item.course.courseNumber,
-        sectionNumber: item.section?.sectionNumber || null,
-      })),
-      blockedSlots: Array.from(blockedSlots),
-      targetTotalCount,
-    });
-  }, [selectedCourses, blockedSlots, targetTotalCount]);
 
   // Reset all selections
   const handleResetAll = () => {
@@ -304,6 +333,10 @@ export default function App() {
             onSelectVariation={setActiveVariation}
             onPinVariation={handlePinVariation}
             onPreviewHover={setPreviewItems}
+            enabledMe4Codes={enabledMe4Codes}
+            onChangeEnabledMe4Codes={setEnabledMe4Codes}
+            sortCriterion={sortCriterion}
+            onChangeSortCriterion={setSortCriterion}
           />
         </div>
 
@@ -345,11 +378,13 @@ export default function App() {
         isOpen={isSaveModalOpen}
         onClose={() => setIsSaveModalOpen(false)}
         selectedCourses={selectedCourses}
+        enabledMe4Codes={enabledMe4Codes}
         blockedSlots={blockedSlots}
         targetTotalCount={targetTotalCount}
-        activeVariation={activeVariation}
+        sortCriterion={sortCriterion}
         onLoadPlan={handleLoadPlan}
         metadata={coursesData.metadata}
+        allCourses={coursesData.courses}
       />
 
       <ExportTimetableModal
