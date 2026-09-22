@@ -194,7 +194,7 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl 2xl:max-w-[1536px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* Top Control Bar with Quick Info & Export */}
         <div className="flex flex-wrap items-center justify-between gap-4 bg-white/80 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 backdrop-blur-sm shadow-xs">
           <div className="flex items-center gap-3">
@@ -245,8 +245,8 @@ export default function App() {
 
         {/* 2) Alt Kısım: Solda Varyasyon Üretici, Sağda Haftalık Program & Saat Bloklama */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-          {/* Sol Kolon: Varyasyon Üretici Kartı (4 Kolon - Kompakt) */}
-          <div className="xl:col-span-4 space-y-6">
+          {/* Sol Kolon: Varyasyon Üretici Kartı (5 Kolon) */}
+          <div className="xl:col-span-5 space-y-6">
             <VariationExplorer
               allCourses={coursesData.courses}
               selectedCourses={selectedCourses}
@@ -260,8 +260,8 @@ export default function App() {
             />
           </div>
 
-          {/* Sağ Kolon: Saat Bloklama & Haftalık Ders Programı (8 Kolon - Genişletilmiş Çizelge) */}
-          <div className="xl:col-span-8 space-y-6">
+          {/* Sağ Kolon: Saat Bloklama & Haftalık Ders Programı (7 Kolon) */}
+          <div className="xl:col-span-7 space-y-6">
             <BlockedHoursManager
               blockedSlots={blockedSlots}
               onUpdateBlockedSlots={handleUpdateBlockedSlots}
