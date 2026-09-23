@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Download, Printer, Copy, Check, X, FileText, Calendar, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { toPng } from 'html-to-image';
+import { getRegistrationInfo } from '../utils/registration';
 
 export default function ExportTimetableModal({
   isOpen,
@@ -25,8 +26,24 @@ export default function ExportTimetableModal({
 
     scheduledCourses.forEach(({ course, section }) => {
       const sisCode = course.code || `5690${course.courseNumber}`;
+      const reg = getRegistrationInfo(course.codeStr);
       text += `• ${course.codeStr} (${course.name})\n`;
       text += `  ODTÜ Kodu: ${sisCode} | Section: ${section.sectionNumber}\n`;
+
+      if (reg) {
+        if (reg.type === 'form') {
+          text += `  Kayıt Yöntemi: Google Form (${reg.formUrl || 'Form doldurulmalıdır'})\n`;
+        } else if (reg.type === 'interactive') {
+          text += `  Kayıt Yöntemi: ODTÜ İnteraktif Kayıt (register.metu.edu.tr)\n`;
+        } else if (reg.type === 'prereq_attend' || reg.type === 'attend') {
+          text += `  Kayıt Yöntemi: İlk Derse Katılım / Ön Koşul Şartı\n`;
+        } else if (reg.type === 'contact') {
+          text += `  Kayıt Yöntemi: Asistan İletişimi (${reg.assistant || ''} - ${reg.email || ''})\n`;
+        }
+      } else {
+        text += `  Kayıt Yöntemi: ODTÜ İnteraktif Kayıt (register.metu.edu.tr)\n`;
+      }
+
       if (section.instructors?.length > 0) {
         text += `  Öğretim Üyesi: ${section.instructors.map((i) => i.name).join(', ')}\n`;
       }

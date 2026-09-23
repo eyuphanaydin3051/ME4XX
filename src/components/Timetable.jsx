@@ -13,6 +13,7 @@ import {
   Copy,
   Check,
   Download,
+  FileText,
 } from 'lucide-react';
 import { getCoursePrerequisite } from '../utils/prerequisites';
 import { getRegistrationInfo, REG_TYPE_CONFIG } from '../utils/registration';
@@ -97,18 +98,23 @@ export default function Timetable({
           </span>
         </div>
 
-        <div className="flex items-center gap-3 sm:gap-4 text-xs text-slate-600 dark:text-slate-400 flex-wrap">
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-indigo-500/20 dark:bg-indigo-500/30 border border-indigo-400/60 inline-block"></span>
-            <span>Sabit Dersler</span>
+        <div className="flex items-center gap-2.5 sm:gap-3.5 text-xs text-slate-600 dark:text-slate-400 flex-wrap">
+          {/* Kayıt Türü Açıklamaları (Legend) */}
+          <div className="flex items-center gap-1" title="register.metu.edu.tr üzerinden doğrudan eklenen dersler">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+            <span className="font-semibold text-emerald-700 dark:text-emerald-300 text-[11px]">İnteraktif</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-amber-500/20 dark:bg-amber-500/30 border border-amber-400/60 inline-block"></span>
-            <span>ME4 Seçmeli</span>
+          <div className="flex items-center gap-1" title="Google Form doldurulması gereken seçmeli dersler">
+            <span className="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span>
+            <span className="font-semibold text-purple-700 dark:text-purple-300 text-[11px]">Form ile Kayıt</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-rose-100 dark:bg-rose-950/70 border border-rose-300 dark:border-rose-800/80 inline-block bg-[radial-gradient(#ef4444_1px,transparent_1px)] [background-size:6px_6px]"></span>
-            <span>Bloklu Saat</span>
+          <div className="flex items-center gap-1" title="İlk derse katılım ve/veya transkript/asistan şartı olan dersler">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+            <span className="text-amber-700 dark:text-amber-300 text-[11px]">İlk Ders / Şart</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-2.5 h-2.5 rounded bg-rose-100 dark:bg-rose-950 border border-rose-400 inline-block bg-[radial-gradient(#ef4444_1px,transparent_1px)] [background-size:4px_4px]"></span>
+            <span className="text-[11px]">Bloklu Saat</span>
           </div>
 
           {/* Görünüm Yoğunluğu Seçici (Kompakt / Geniş) */}
@@ -250,28 +256,50 @@ export default function Timetable({
                         const isMust4xx = occ.course.courseNumber === '407' || occ.course.courseNumber === '410';
                         const prereq = getCoursePrerequisite(occ.course.codeStr);
                         const regInfo = getRegistrationInfo(occ.course.codeStr);
-                        const regCfg = regInfo ? REG_TYPE_CONFIG[regInfo.type] : null;
 
                         const sisCode =
                           occ.course.code ||
                           `5690${String(occ.course.courseNumber).padStart(3, '0')}`;
                         const isCopied = copiedCourseCode === occ.course.code || copiedCourseCode === sisCode;
+
+                        // Registration type classification & styling
+                        const isForm = regInfo?.type === 'form';
+                        const isPrereqAttend = regInfo?.type === 'prereq_attend' || regInfo?.type === 'attend';
+                        const isContact = regInfo?.type === 'contact';
                         const isInteractive = !regInfo || regInfo.type === 'interactive';
+
+                        let regBorder = 'border-l-[4px] border-l-emerald-500';
+                        if (isForm) {
+                          regBorder = 'border-l-[4px] border-l-purple-500';
+                        } else if (isPrereqAttend) {
+                          regBorder = 'border-l-[4px] border-l-amber-500';
+                        } else if (isContact) {
+                          regBorder = 'border-l-[4px] border-l-cyan-500';
+                        }
+
+                        // Detailed informative tooltip
+                        const tooltipText = `${occ.course.codeStr} - ${occ.course.name}\nSection: ${
+                          occ.section.sectionNumber
+                        }\nDerslik: ${occ.blockClassroom || 'ME'} (${occ.blockBuilding || ''})\nÖğretim Üyesi: ${
+                          occ.section.instructors?.map((i) => i.name).join(', ') || 'Belirtilmedi'
+                        }${prereq ? `\nÖn Koşul: ${prereq}` : ''}\n------------------------------------\n📌 KAYIT TÜRÜ: ${
+                          isForm
+                            ? '🟣 GOOGLE FORM İLE KAYIT (Form doldurulmalıdır)'
+                            : isPrereqAttend
+                            ? '🟡 İLK DERS / ÖN KOŞUL ŞARTI (Derse katılım / transkript)'
+                            : isContact
+                            ? '✉️ ASİSTAN İLETİŞİMİ GEREKLİ'
+                            : '🟢 İNTERAKTİF KAYIT (ODTÜ SIS portalı üzerinden doğrudan ekleme)'
+                        }${regInfo?.notes ? `\nNot: ${regInfo.notes}` : ''}${
+                          regInfo?.assistant ? `\nAsistan: ${regInfo.assistant} (${regInfo.email})` : ''
+                        }\n------------------------------------\n📋 Tıkla: 7 haneli ODTÜ kodunu (${sisCode}) panoya kopyalar!`;
 
                         return (
                           <div
                             key={idx}
                             onClick={(e) => handleCopyCourseCode(e, occ.course, occ.section)}
-                            className={`${isCompact ? 'p-1 rounded-md' : 'p-1.5 rounded-lg'} border shadow-xs transition-transform hover:scale-[1.01] cursor-pointer group w-full min-w-0 overflow-hidden relative ${style.bg} ${style.border} ${style.text}`}
-                            title={`${occ.course.codeStr} - ${occ.course.name}\nSection: ${
-                              occ.section.sectionNumber
-                            }\nDerslik: ${occ.blockClassroom || 'ME'} (${
-                              occ.blockBuilding || ''
-                            })\nÖğretim Üyesi: ${
-                              occ.section.instructors?.map((i) => i.name).join(', ') || 'Belirtilmedi'
-                            }${prereq ? `\nÖn Şart: ${prereq}` : ''}${
-                              regInfo ? `\nKayıt Yöntemi: ${regCfg?.label}` : '\nKayıt Yöntemi: İnteraktif Kayıt'
-                            }\n\n📋 Tıkla: 7 haneli ODTÜ kodunu (${sisCode}) panoya kopyalar!`}
+                            className={`${isCompact ? 'p-1 rounded-md' : 'p-1.5 rounded-lg'} border shadow-xs transition-transform hover:scale-[1.01] cursor-pointer group w-full min-w-0 overflow-hidden relative ${style.bg} ${style.border} ${style.text} ${regBorder}`}
+                            title={tooltipText}
                           >
                             {/* Copied Flash Overlay */}
                             {isCopied && (
@@ -293,22 +321,16 @@ export default function Timetable({
                                   className={`text-[9px] px-1 py-0.2 rounded font-semibold shrink-0 ${
                                     isMust4xx
                                       ? 'bg-blue-400/40 text-blue-100 border border-blue-300/50'
-                                      : isElective
-                                      ? 'bg-amber-400/30 text-amber-100 border border-amber-300/40'
                                       : 'bg-white/20 text-white'
                                   }`}
                                 >
                                   {isCompact ? `S${occ.section.sectionNumber}` : `Sec ${occ.section.sectionNumber}`}
                                 </span>
-                                {isMust4xx ? (
+                                {isMust4xx && (
                                   <span className="text-[8px] px-1 rounded bg-blue-900/60 text-blue-200 border border-blue-400/30 font-medium shrink-0">
                                     Zorunlu
                                   </span>
-                                ) : isElective ? (
-                                  <span className="text-[8.5px] px-0.5 rounded bg-amber-400/20 text-amber-200 font-medium shrink-0">
-                                    ME4
-                                  </span>
-                                ) : null}
+                                )}
                               </div>
                             </div>
 
@@ -330,40 +352,68 @@ export default function Timetable({
                               )}
                             </div>
 
-                            {/* Line 3: Prerequisites & Registration (SIS Code or Form) */}
+                            {/* Line 3: Prerequisites & Registration Method (Form vs Interactive) */}
                             <div className={`${isCompact ? 'mt-0.5 pt-0.5' : 'mt-1 pt-1'} border-t border-white/20 flex items-center justify-between gap-1 text-[8.5px] min-w-0 w-full leading-none`}>
                               {prereq ? (
                                 <span
-                                  className="truncate min-w-0 text-amber-200 font-medium text-[8px] flex items-center gap-0.5"
-                                  title={`Ön Şart: ${prereq}`}
+                                  className="truncate min-w-0 text-amber-200 font-medium text-[8px] flex items-center gap-0.5 shrink"
+                                  title={`Ön Koşul: ${prereq}`}
                                 >
                                   <CheckCircle className="w-2 h-2 inline shrink-0 text-amber-300" />
                                   <span className="truncate">Ön: {prereq.replace('ME ', '')}</span>
                                 </span>
                               ) : (
-                                <span />
+                                <span className="font-mono text-[8px] text-white/70 truncate shrink-0" title={`ODTÜ Kodu: ${sisCode} (Tıkla ve kopyala)`}>
+                                  {sisCode}
+                                </span>
                               )}
 
                               <div className="flex items-center gap-0.5 shrink-0 ml-auto">
-                                <span
-                                  className={`px-1 py-0.2 rounded font-mono text-[8.5px] flex items-center gap-0.5 font-semibold ${
-                                    regCfg?.badgeClass || 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/40'
-                                  }`}
-                                  title={`${occ.course.codeStr} ODTÜ Kodu: ${sisCode}`}
-                                >
-                                  {sisCode}
-                                </span>
-                                {regInfo?.formUrl && (
-                                  <a
-                                    href={regInfo.formUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="text-white hover:text-amber-200 underline font-medium p-0.5"
-                                    title={`${occ.course.codeStr} Kayıt Formunu Aç`}
+                                {isForm ? (
+                                  <div className="flex items-center gap-0.5">
+                                    <span
+                                      className="px-1.5 py-0.5 rounded bg-purple-600 text-white font-extrabold text-[8px] tracking-tight shadow-xs flex items-center gap-0.5"
+                                      title="Google Form ile kayıt olunmalıdır"
+                                    >
+                                      <FileText className="w-2 h-2 inline stroke-[2.5]" />
+                                      FORM
+                                    </span>
+                                    {regInfo?.formUrl && (
+                                      <a
+                                        href={regInfo.formUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="px-1 py-0.5 rounded bg-purple-200 hover:bg-white text-purple-950 font-bold text-[8px] flex items-center gap-0.5 transition-colors shadow-xs"
+                                        title={`${occ.course.codeStr} Google Formunu Yeni Sekmede Aç`}
+                                      >
+                                        <span>Link</span>
+                                        <ExternalLink className="w-2 h-2 inline stroke-[2.5]" />
+                                      </a>
+                                    )}
+                                  </div>
+                                ) : isPrereqAttend ? (
+                                  <span
+                                    className="px-1.5 py-0.5 rounded bg-amber-500 text-slate-950 font-bold text-[8px] shadow-xs"
+                                    title="İlk derse katılım veya asistan onayı gereklidir"
                                   >
-                                    <ExternalLink className="w-2.5 h-2.5 inline" />
-                                  </a>
+                                    İLK DERS
+                                  </span>
+                                ) : isContact ? (
+                                  <span
+                                    className="px-1.5 py-0.5 rounded bg-cyan-600 text-white font-bold text-[8px] shadow-xs"
+                                    title="Asistan ile iletişime geçilmelidir"
+                                  >
+                                    ASİSTAN
+                                  </span>
+                                ) : (
+                                  <span
+                                    className="px-1.5 py-0.5 rounded bg-emerald-600 text-white font-bold text-[8px] tracking-tight shadow-xs flex items-center gap-0.5"
+                                    title="Doğrudan ODTÜ İnteraktif Kayıt sisteminden eklenir"
+                                  >
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-200 inline-block animate-pulse"></span>
+                                    İNTERAKTİF
+                                  </span>
                                 )}
                               </div>
                             </div>
