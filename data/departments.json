@@ -1,0 +1,938 @@
+[
+  {
+    "code": "310",
+    "abbr": "ADM",
+    "name": "Political Science and Public Adm.",
+    "courseCount": 114
+  },
+  {
+    "code": "572",
+    "abbr": "AEE",
+    "name": "Aerospace Engineering",
+    "courseCount": 78
+  },
+  {
+    "code": "801",
+    "abbr": "AH",
+    "name": "History of Architecture",
+    "courseCount": 29
+  },
+  {
+    "code": "393",
+    "abbr": "AIN",
+    "name": "Artificial Intelligence Engineering",
+    "courseCount": 3
+  },
+  {
+    "code": "887",
+    "abbr": "AIX",
+    "name": "Artificial Intelligence Engineering",
+    "courseCount": 11
+  },
+  {
+    "code": "602",
+    "abbr": "ARAB",
+    "name": "Modern Languages (Arabic)",
+    "courseCount": 3
+  },
+  {
+    "code": "379",
+    "abbr": "ARC",
+    "name": "Architecture",
+    "courseCount": 1
+  },
+  {
+    "code": "858",
+    "abbr": "ARCD",
+    "name": "Computational Design and Fabrication Technologies in Architecture (International Joint Program)",
+    "courseCount": 5
+  },
+  {
+    "code": "120",
+    "abbr": "ARCH",
+    "name": "Architecture",
+    "courseCount": 100
+  },
+  {
+    "code": "863",
+    "abbr": "ARME",
+    "name": "Archaeometry",
+    "courseCount": 55
+  },
+  {
+    "code": "815",
+    "abbr": "ARS",
+    "name": "Area Studies",
+    "courseCount": 7
+  },
+  {
+    "code": "375",
+    "abbr": "ART",
+    "name": "Art",
+    "courseCount": 2
+  },
+  {
+    "code": "384",
+    "abbr": "ASE",
+    "name": "Aerospace Engineering",
+    "courseCount": 16
+  },
+  {
+    "code": "842",
+    "abbr": "ASN",
+    "name": "Asian Studies",
+    "courseCount": 7
+  },
+  {
+    "code": "864",
+    "abbr": "ASTR",
+    "name": "Astrophysics",
+    "courseCount": 4
+  },
+  {
+    "code": "312",
+    "abbr": "BA",
+    "name": "Business Administration",
+    "courseCount": 117
+  },
+  {
+    "code": "316",
+    "abbr": "BAS",
+    "name": "Business Administration (International Joint Program)",
+    "courseCount": 8
+  },
+  {
+    "code": "601",
+    "abbr": "BASE",
+    "name": "Basic English",
+    "courseCount": 6
+  },
+  {
+    "code": "860",
+    "abbr": "BCH",
+    "name": "Biochemistry",
+    "courseCount": 94
+  },
+  {
+    "code": "908",
+    "abbr": "BIN",
+    "name": "Bioinformatics",
+    "courseCount": 19
+  },
+  {
+    "code": "373",
+    "abbr": "BIO",
+    "name": "Biology",
+    "courseCount": 1
+  },
+  {
+    "code": "238",
+    "abbr": "BIOL",
+    "name": "Biology",
+    "courseCount": 103
+  },
+  {
+    "code": "872",
+    "abbr": "BME",
+    "name": "Biomedical Engineering",
+    "courseCount": 72
+  },
+  {
+    "code": "854",
+    "abbr": "BS",
+    "name": "Building Science",
+    "courseCount": 35
+  },
+  {
+    "code": "861",
+    "abbr": "BTEC",
+    "name": "Biotechnology",
+    "courseCount": 121
+  },
+  {
+    "code": "353",
+    "abbr": "BUS",
+    "name": "Business Administration",
+    "courseCount": 17
+  },
+  {
+    "code": "562",
+    "abbr": "CE",
+    "name": "Civil Engineering",
+    "courseCount": 177
+  },
+  {
+    "code": "430",
+    "abbr": "CEIT",
+    "name": "Computer Education and Instructional Technology",
+    "courseCount": 45
+  },
+  {
+    "code": "870",
+    "abbr": "CEME",
+    "name": "Cement Engineering",
+    "courseCount": 3
+  },
+  {
+    "code": "571",
+    "abbr": "CENG",
+    "name": "Computer Engineering",
+    "courseCount": 114
+  },
+  {
+    "code": "563",
+    "abbr": "CHE",
+    "name": "Chemical Engineering",
+    "courseCount": 89
+  },
+  {
+    "code": "234",
+    "abbr": "CHEM",
+    "name": "Chemistry",
+    "courseCount": 132
+  },
+  {
+    "code": "380",
+    "abbr": "CHIN",
+    "name": "Modern Languages (Chinese)",
+    "courseCount": 1
+  },
+  {
+    "code": "360",
+    "abbr": "CHM",
+    "name": "Chemistry",
+    "courseCount": 4
+  },
+  {
+    "code": "367",
+    "abbr": "CHME",
+    "name": "Chemical Engineering",
+    "courseCount": 16
+  },
+  {
+    "code": "611",
+    "abbr": "CHN",
+    "name": "Modern Languages (Chinese)",
+    "courseCount": 3
+  },
+  {
+    "code": "355",
+    "abbr": "CNG",
+    "name": "Computer Engineering",
+    "courseCount": 37
+  },
+  {
+    "code": "575",
+    "abbr": "CNGB",
+    "name": "Computer Engineering (Türkiye-Azerbaijan University TAU)",
+    "courseCount": 8
+  },
+  {
+    "code": "902",
+    "abbr": "COGS",
+    "name": "Cognitive Sciences",
+    "courseCount": 45
+  },
+  {
+    "code": "856",
+    "abbr": "CONS",
+    "name": "Graduate Program in Conservation of Cultural Heritage",
+    "courseCount": 28
+  },
+  {
+    "code": "853",
+    "abbr": "CP",
+    "name": "City Planning",
+    "courseCount": 5
+  },
+  {
+    "code": "121",
+    "abbr": "CRP",
+    "name": "City and Regional Planning",
+    "courseCount": 66
+  },
+  {
+    "code": "910",
+    "abbr": "CSEC",
+    "name": "Cyber Security",
+    "courseCount": 14
+  },
+  {
+    "code": "376",
+    "abbr": "CTE",
+    "name": "Computer Education and Instructional Technology",
+    "courseCount": 1
+  },
+  {
+    "code": "364",
+    "abbr": "CVE",
+    "name": "Civil Engineering",
+    "courseCount": 24
+  },
+  {
+    "code": "392",
+    "abbr": "CYG",
+    "name": "Cybersecurity Engineering",
+    "courseCount": 2
+  },
+  {
+    "code": "886",
+    "abbr": "DDS",
+    "name": "Data and Decision Sciences",
+    "courseCount": 13
+  },
+  {
+    "code": "911",
+    "abbr": "DI",
+    "name": "Data Informatics",
+    "courseCount": 18
+  },
+  {
+    "code": "835",
+    "abbr": "EAS",
+    "name": "Eurasian Studies",
+    "courseCount": 6
+  },
+  {
+    "code": "411",
+    "abbr": "ECE",
+    "name": "Early Childhood Education",
+    "courseCount": 35
+  },
+  {
+    "code": "352",
+    "abbr": "ECO",
+    "name": "Economics",
+    "courseCount": 10
+  },
+  {
+    "code": "311",
+    "abbr": "ECON",
+    "name": "Economics",
+    "courseCount": 97
+  },
+  {
+    "code": "454",
+    "abbr": "EDS",
+    "name": "Educational Sciences",
+    "courseCount": 73
+  },
+  {
+    "code": "368",
+    "abbr": "EDUS",
+    "name": "Educational Sciences",
+    "courseCount": 4
+  },
+  {
+    "code": "567",
+    "abbr": "EE",
+    "name": "Electrical and Electronics Engineering",
+    "courseCount": 177
+  },
+  {
+    "code": "356",
+    "abbr": "EEE",
+    "name": "Electrical and Electronics Engineering",
+    "courseCount": 33
+  },
+  {
+    "code": "366",
+    "abbr": "EFL",
+    "name": "Teaching English as a Foreign Language",
+    "courseCount": 16
+  },
+  {
+    "code": "821",
+    "abbr": "ELIT",
+    "name": "English Literature",
+    "courseCount": 22
+  },
+  {
+    "code": "820",
+    "abbr": "ELT",
+    "name": "English Language Teaching",
+    "courseCount": 47
+  },
+  {
+    "code": "866",
+    "abbr": "EM",
+    "name": "Engineering Management",
+    "courseCount": 6
+  },
+  {
+    "code": "837",
+    "abbr": "EMBA",
+    "name": "Executive Master of Business  Administration",
+    "courseCount": 10
+  },
+  {
+    "code": "798",
+    "abbr": "ENEL",
+    "name": "Elektronik Teknolojisi",
+    "courseCount": 1
+  },
+  {
+    "code": "639",
+    "abbr": "ENG",
+    "name": "Modern Languages (English)",
+    "courseCount": 10
+  },
+  {
+    "code": "359",
+    "abbr": "ENGL",
+    "name": "Modern Languages (English)",
+    "courseCount": 6
+  },
+  {
+    "code": "399",
+    "abbr": "ENGP",
+    "name": "English Language Preparatory Program",
+    "courseCount": 4
+  },
+  {
+    "code": "391",
+    "abbr": "ENLT",
+    "name": "English Language Teaching",
+    "courseCount": 10
+  },
+  {
+    "code": "560",
+    "abbr": "ENVE",
+    "name": "Environmental Engineering",
+    "courseCount": 54
+  },
+  {
+    "code": "873",
+    "abbr": "EQS",
+    "name": "Earthquake Studies",
+    "courseCount": 24
+  },
+  {
+    "code": "561",
+    "abbr": "ES",
+    "name": "Engineering Sciences",
+    "courseCount": 34
+  },
+  {
+    "code": "383",
+    "abbr": "ESC",
+    "name": "Engineering Sciences",
+    "courseCount": 3
+  },
+  {
+    "code": "874",
+    "abbr": "ESS",
+    "name": "Earth System Science",
+    "courseCount": 123
+  },
+  {
+    "code": "833",
+    "abbr": "EUS",
+    "name": "European Studies",
+    "courseCount": 5
+  },
+  {
+    "code": "573",
+    "abbr": "FDE",
+    "name": "Food Engineering",
+    "courseCount": 55
+  },
+  {
+    "code": "450",
+    "abbr": "FLE",
+    "name": "Foreign Language Education",
+    "courseCount": 27
+  },
+  {
+    "code": "603",
+    "abbr": "FREN",
+    "name": "Modern Languages (French)",
+    "courseCount": 5
+  },
+  {
+    "code": "219",
+    "abbr": "GENE",
+    "name": "Molecular Biology and Genetics",
+    "courseCount": 74
+  },
+  {
+    "code": "564",
+    "abbr": "GEOE",
+    "name": "Geological Engineering",
+    "courseCount": 77
+  },
+  {
+    "code": "604",
+    "abbr": "GERM",
+    "name": "Modern Languages (German)",
+    "courseCount": 5
+  },
+  {
+    "code": "865",
+    "abbr": "GGIT",
+    "name": "Geodetic and Geographical Information Technologies",
+    "courseCount": 72
+  },
+  {
+    "code": "315",
+    "abbr": "GIA",
+    "name": "Global and International Affairs (International Joint Program)",
+    "courseCount": 9
+  },
+  {
+    "code": "378",
+    "abbr": "GPC",
+    "name": "Guidance and Psychological Counseling",
+    "courseCount": 1
+  },
+  {
+    "code": "369",
+    "abbr": "GRM",
+    "name": "Modern Languages (German)",
+    "courseCount": 2
+  },
+  {
+    "code": "841",
+    "abbr": "GTSS",
+    "name": "Social Sciences (Turkish- German) (International Joint Program)",
+    "courseCount": 5
+  },
+  {
+    "code": "810",
+    "abbr": "GWS",
+    "name": "Gender&Women Studies",
+    "courseCount": 4
+  },
+  {
+    "code": "240",
+    "abbr": "HIST",
+    "name": "History",
+    "courseCount": 74
+  },
+  {
+    "code": "912",
+    "abbr": "HPC",
+    "name": "Information Systems and High Performance Computing  (International Joint Program)",
+    "courseCount": 2
+  },
+  {
+    "code": "834",
+    "abbr": "HRDE",
+    "name": "Human Resources Development In Education",
+    "courseCount": 3
+  },
+  {
+    "code": "362",
+    "abbr": "HST",
+    "name": "History",
+    "courseCount": 3
+  },
+  {
+    "code": "970",
+    "abbr": "IAM",
+    "name": "Institute Of Applied Mathematics",
+    "courseCount": 58
+  },
+  {
+    "code": "125",
+    "abbr": "ID",
+    "name": "Industrial Design",
+    "courseCount": 69
+  },
+  {
+    "code": "857",
+    "abbr": "IDDI",
+    "name": "Design Research for Interaction (International Joint Program)",
+    "courseCount": 6
+  },
+  {
+    "code": "568",
+    "abbr": "IE",
+    "name": "Industrial Engineering",
+    "courseCount": 63
+  },
+  {
+    "code": "388",
+    "abbr": "INE",
+    "name": "Industrial Engineering",
+    "courseCount": 19
+  },
+  {
+    "code": "682",
+    "abbr": "INST",
+    "name": "Music and Fine Arts",
+    "courseCount": 32
+  },
+  {
+    "code": "904",
+    "abbr": "ION",
+    "name": "Informatics Online",
+    "courseCount": 2
+  },
+  {
+    "code": "314",
+    "abbr": "IR",
+    "name": "International Relations",
+    "courseCount": 94
+  },
+  {
+    "code": "901",
+    "abbr": "IS",
+    "name": "Information Systems",
+    "courseCount": 71
+  },
+  {
+    "code": "606",
+    "abbr": "ITAL",
+    "name": "Modern Languages (Italian)",
+    "courseCount": 4
+  },
+  {
+    "code": "605",
+    "abbr": "JA",
+    "name": "Modern Languages (Japanese)",
+    "courseCount": 3
+  },
+  {
+    "code": "843",
+    "abbr": "LNA",
+    "name": "Latin and North American Studies",
+    "courseCount": 4
+  },
+  {
+    "code": "950",
+    "abbr": "MASC",
+    "name": "Graduate School of Marine Sciences",
+    "courseCount": 50
+  },
+  {
+    "code": "357",
+    "abbr": "MAT",
+    "name": "Mathematics",
+    "courseCount": 6
+  },
+  {
+    "code": "236",
+    "abbr": "MATH",
+    "name": "Mathematics",
+    "courseCount": 130
+  },
+  {
+    "code": "954",
+    "abbr": "MBIO",
+    "name": "Marine Biology and Fisheries",
+    "courseCount": 2
+  },
+  {
+    "code": "816",
+    "abbr": "MCS",
+    "name": "Media and Cultural Studies",
+    "courseCount": 4
+  },
+  {
+    "code": "569",
+    "abbr": "ME",
+    "name": "Mechanical Engineering",
+    "courseCount": 152
+  },
+  {
+    "code": "365",
+    "abbr": "MECH",
+    "name": "Mechanical Engineering",
+    "courseCount": 34
+  },
+  {
+    "code": "832",
+    "abbr": "MES",
+    "name": "Middle East Studies",
+    "courseCount": 9
+  },
+  {
+    "code": "570",
+    "abbr": "METE",
+    "name": "Metallurgical and Materials Engineering",
+    "courseCount": 109
+  },
+  {
+    "code": "906",
+    "abbr": "MI",
+    "name": "Medical Informatics",
+    "courseCount": 50
+  },
+  {
+    "code": "565",
+    "abbr": "MINE",
+    "name": "Mining Engineering",
+    "courseCount": 34
+  },
+  {
+    "code": "909",
+    "abbr": "MMI",
+    "name": "Multimedia Informatics",
+    "courseCount": 24
+  },
+  {
+    "code": "871",
+    "abbr": "MNT",
+    "name": "Micro and Nanotechnology",
+    "courseCount": 100
+  },
+  {
+    "code": "460",
+    "abbr": "MSE",
+    "name": "Mathematics and Science Education",
+    "courseCount": 88
+  },
+  {
+    "code": "651",
+    "abbr": "MUS",
+    "name": "Music and Fine Arts",
+    "courseCount": 30
+  },
+  {
+    "code": "878",
+    "abbr": "NSNT",
+    "name": "Neuroscience and Neurotechnology",
+    "courseCount": 7
+  },
+  {
+    "code": "956",
+    "abbr": "OCEA",
+    "name": "Oceanography",
+    "courseCount": 2
+  },
+  {
+    "code": "387",
+    "abbr": "OCHS",
+    "name": "Occupational Health and Safety",
+    "courseCount": 2
+  },
+  {
+    "code": "877",
+    "abbr": "OHS",
+    "name": "Occupational Health and Safety",
+    "courseCount": 28
+  },
+  {
+    "code": "880",
+    "abbr": "OR",
+    "name": "Operational Research",
+    "courseCount": 29
+  },
+  {
+    "code": "612",
+    "abbr": "PERS",
+    "name": "Modern Languages (Persian)",
+    "courseCount": 2
+  },
+  {
+    "code": "453",
+    "abbr": "PES",
+    "name": "Physical Education and Sports",
+    "courseCount": 29
+  },
+  {
+    "code": "566",
+    "abbr": "PETE",
+    "name": "Petroleum and Natural Gas Engineering",
+    "courseCount": 42
+  },
+  {
+    "code": "241",
+    "abbr": "PHIL",
+    "name": "Philosophy",
+    "courseCount": 71
+  },
+  {
+    "code": "377",
+    "abbr": "PHL",
+    "name": "Philosophy",
+    "courseCount": 1
+  },
+  {
+    "code": "358",
+    "abbr": "PHY",
+    "name": "Physics",
+    "courseCount": 2
+  },
+  {
+    "code": "230",
+    "abbr": "PHYS",
+    "name": "Physics",
+    "courseCount": 150
+  },
+  {
+    "code": "374",
+    "abbr": "PNGE",
+    "name": "Petroleum and Natural Gas Engineering",
+    "courseCount": 13
+  },
+  {
+    "code": "354",
+    "abbr": "PSIR",
+    "name": "Political Science and International Relations",
+    "courseCount": 14
+  },
+  {
+    "code": "862",
+    "abbr": "PST",
+    "name": "Polymer Science and Technology",
+    "courseCount": 54
+  },
+  {
+    "code": "233",
+    "abbr": "PSY",
+    "name": "Psychology",
+    "courseCount": 110
+  },
+  {
+    "code": "371",
+    "abbr": "PSYC",
+    "name": "Psychology",
+    "courseCount": 20
+  },
+  {
+    "code": "394",
+    "abbr": "PSYL",
+    "name": "Clinical Psychology",
+    "courseCount": 3
+  },
+  {
+    "code": "885",
+    "abbr": "ROB",
+    "name": "Robotics",
+    "courseCount": 39
+  },
+  {
+    "code": "852",
+    "abbr": "RP",
+    "name": "Regional Planning",
+    "courseCount": 2
+  },
+  {
+    "code": "814",
+    "abbr": "SA",
+    "name": "Settlement Archaeology",
+    "courseCount": 18
+  },
+  {
+    "code": "840",
+    "abbr": "SAN",
+    "name": "Social Anthropology",
+    "courseCount": 1
+  },
+  {
+    "code": "867",
+    "abbr": "SE",
+    "name": "Software Engineering",
+    "courseCount": 1
+  },
+  {
+    "code": "390",
+    "abbr": "SEES",
+    "name": "Sustainable Environment and Energy Systems",
+    "courseCount": 50
+  },
+  {
+    "code": "644",
+    "abbr": "SLTP",
+    "name": "Music and Fine Arts",
+    "courseCount": 1
+  },
+  {
+    "code": "389",
+    "abbr": "SNG",
+    "name": "Software Engineering",
+    "courseCount": 12
+  },
+  {
+    "code": "232",
+    "abbr": "SOC",
+    "name": "Sociology",
+    "courseCount": 76
+  },
+  {
+    "code": "372",
+    "abbr": "SOCL",
+    "name": "Sociology",
+    "courseCount": 2
+  },
+  {
+    "code": "608",
+    "abbr": "SPAN",
+    "name": "Modern Languages (Spanish)",
+    "courseCount": 3
+  },
+  {
+    "code": "839",
+    "abbr": "SPL",
+    "name": "Social Policy",
+    "courseCount": 4
+  },
+  {
+    "code": "420",
+    "abbr": "SSME",
+    "name": "Secondary Science and Mathematics Educ.",
+    "courseCount": 1
+  },
+  {
+    "code": "363",
+    "abbr": "STAS",
+    "name": "Statistics",
+    "courseCount": 1
+  },
+  {
+    "code": "246",
+    "abbr": "STAT",
+    "name": "Statistics",
+    "courseCount": 55
+  },
+  {
+    "code": "831",
+    "abbr": "STPS",
+    "name": "Science and Technology Policy Studies",
+    "courseCount": 26
+  },
+  {
+    "code": "451",
+    "abbr": "TEFL",
+    "name": "English Language Teaching (International Joint Program)",
+    "courseCount": 14
+  },
+  {
+    "code": "643",
+    "abbr": "THEA",
+    "name": "Music and Fine Arts",
+    "courseCount": 26
+  },
+  {
+    "code": "795",
+    "abbr": "TKPR",
+    "name": "Meslek Yüksekokulu",
+    "courseCount": 18
+  },
+  {
+    "code": "361",
+    "abbr": "TUR",
+    "name": "Turkish Language",
+    "courseCount": 4
+  },
+  {
+    "code": "642",
+    "abbr": "TURK",
+    "name": "Turkish Language",
+    "courseCount": 12
+  },
+  {
+    "code": "855",
+    "abbr": "UD",
+    "name": "Urban Design",
+    "courseCount": 3
+  },
+  {
+    "code": "811",
+    "abbr": "UPL",
+    "name": "Urban Policy Planning and Local Governments",
+    "courseCount": 6
+  }
+]
