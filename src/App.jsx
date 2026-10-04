@@ -3,8 +3,10 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import initialCoursesData from './data/all_courses.json';
 import departmentsData from './data/departments.json';
 import Header from './components/Header';
+import SemesterBar from './components/SemesterBar';
+import UniversalCourseSearch from './components/UniversalCourseSearch';
+import SelectedCoursesList from './components/SelectedCoursesList';
 import Timetable from './components/Timetable';
-import CourseSelector from './components/CourseSelector';
 import BlockedHoursManager from './components/BlockedHoursManager';
 import VariationExplorer from './components/VariationExplorer';
 import ExportTimetableModal from './components/ExportTimetableModal';
@@ -14,9 +16,16 @@ import HelpModal from './components/HelpModal';
 import RegistrationGuideModal from './components/RegistrationGuideModal';
 import { loadSavedState, saveState } from './utils/storage';
 import {
-  FileText,
-  BookmarkPlus,
-  Building2,
+  getMustCoursesForSemester,
+  matchMustCourseInCatalog,
+  autoSelectEligibleSection,
+} from './utils/curriculum';
+import {
+  Sparkles,
+  Clock,
+  ChevronDown,
+  AlertTriangle,
+  CheckCircle,
 } from 'lucide-react';
 
 export default function App() {
@@ -35,15 +44,24 @@ export default function App() {
     return savedState?.studentSurname || '';
   });
 
+  const [selectedSemester, setSelectedSemester] = useState(() => {
+    return savedState?.selectedSemester || 1;
+  });
+
   const [checkSurname, setCheckSurname] = useState(() => {
     return savedState?.checkSurname !== undefined ? savedState.checkSurname : true;
   });
 
-  const [checkDepartment, setCheckDepartment] = useState(() => {
+  const [checkDepartment, _setCheckDepartment] = useState(() => {
     return savedState?.checkDepartment !== undefined ? savedState.checkDepartment : true;
   });
 
   const [isDepartmentsModalOpen, setIsDepartmentsModalOpen] = useState(false);
+
+  // Blocked slots
+  const [blockedSlots, setBlockedSlots] = useState(() => {
+    return new Set(savedState?.blockedSlots || []);
+  });
 
   // Selected Courses
   const [selectedCourses, setSelectedCourses] = useState(() => {
@@ -61,11 +79,11 @@ export default function App() {
         })
         .filter(Boolean);
     }
-    // Default initial demo course: ME 305 Section 1 (or department's first course)
+    // Default initial demo course: ME 117 or ME 305
     const defaultCourse =
       initialCoursesData.courses.find(
         (c) =>
-          c.department === 'ME' && (c.courseNumber === '305' || c.codeStr === 'ME 305')
+          c.department === 'ME' && (c.courseNumber === '117' || c.codeStr === 'ME 117')
       ) || initialCoursesData.courses[0];
 
     if (defaultCourse && defaultCourse.sections.length > 0) {
@@ -74,10 +92,6 @@ export default function App() {
       return [{ course: defaultCourse, section: scheduledSec }];
     }
     return [];
-  });
-
-  const [blockedSlots, setBlockedSlots] = useState(() => {
-    return new Set(savedState?.blockedSlots || []);
   });
 
   const [targetTotalCount, setTargetTotalCount] = useState(() => {
@@ -92,7 +106,6 @@ export default function App() {
     if (savedState?.enabledMe4Codes && Array.isArray(savedState.enabledMe4Codes)) {
       return new Set(savedState.enabledMe4Codes);
     }
-    // Initial electives pool for studentDepartment
     const deptUpper = (savedState?.studentDepartment || 'ME').toUpperCase();
     return new Set(
       initialCoursesData.courses
@@ -121,11 +134,28 @@ export default function App() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState('');
 
+  // UI Accordions & Mobile Tab State
+  const [isSolverOpen, setIsSolverOpen] = useState(false);
+  const [isBlockerOpen, setIsBlockerOpen] = useState(false);
+  const [mobileTab, setMobileTab] = useState('courses'); // 'courses' | 'timetable'
+
+  // Toast Notification
+  const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => {
+      setToast(null);
+    }, 4500);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
   // Persist state changes
   useEffect(() => {
     saveState({
       studentDepartment,
       studentSurname,
+      selectedSemester,
       checkSurname,
       checkDepartment,
       selectedCourses: selectedCourses.map((s) => ({
@@ -142,6 +172,7 @@ export default function App() {
   }, [
     studentDepartment,
     studentSurname,
+    selectedSemester,
     checkSurname,
     checkDepartment,
     selectedCourses,
@@ -166,7 +197,7 @@ export default function App() {
       .map((s) => ({ ...s, isElective: s.course.courseNumber?.startsWith('4') }));
   }, [activeVariation, selectedCourses]);
 
-  // Handlers for Selected Courses
+  // Handler: Add or update single course
   const handleAddCourse = (course, section) => {
     setSelectedCourses((prev) => {
       const existingIdx = prev.findIndex((p) => p.course.code === course.code);
@@ -177,16 +208,93 @@ export default function App() {
       }
       return [...prev, { course, section }];
     });
+    setActiveVariation(null);
+    setToast({
+      message: `"${course.codeStr}" ders programınıza eklendi (Sec ${section?.sectionNumber || 1}).`,
+      type: 'success',
+    });
   };
 
+  // Handler: Remove course
   const handleRemoveCourse = (courseCode) => {
     setSelectedCourses((prev) => prev.filter((p) => p.course.code !== courseCode));
+    setActiveVariation(null);
   };
 
+  // Handler: Change course section
   const handleChangeCourseSection = (courseCode, section) => {
     setSelectedCourses((prev) =>
       prev.map((p) => (p.course.code === courseCode ? { ...p, section } : p))
     );
+    setActiveVariation(null);
+  };
+
+  // Handler: Fetch Must Courses for current Department & Semester
+  const handleFetchMustCourses = () => {
+    const mustCourses = getMustCoursesForSemester(studentDepartment, selectedSemester);
+    if (!mustCourses || mustCourses.length === 0) {
+      setToast({
+        message: `${studentDepartment} ${selectedSemester}. Dönem için kayıtlı zorunlu ders bulunamadı.`,
+        type: 'warning',
+      });
+      return;
+    }
+
+    let addedCount = 0;
+    let alreadyAddedCount = 0;
+    const notOffered = [];
+    const newSelections = [...selectedCourses];
+
+    for (const must of mustCourses) {
+      const fullCourse = matchMustCourseInCatalog(must, coursesData.courses);
+      if (!fullCourse) {
+        notOffered.push(must.abbr);
+        continue;
+      }
+
+      // Check if already in selected courses
+      const existingIdx = newSelections.findIndex((s) => s.course.code === fullCourse.code);
+      if (existingIdx >= 0) {
+        alreadyAddedCount++;
+        continue;
+      }
+
+      // Auto-select best eligible section based on student's surname criteria and conflicts
+      const bestSec = autoSelectEligibleSection(
+        fullCourse,
+        checkSurname ? studentSurname : '',
+        studentDepartment,
+        blockedSlots,
+        newSelections
+      );
+
+      newSelections.push({
+        course: fullCourse,
+        section: bestSec,
+      });
+      addedCount++;
+    }
+
+    setSelectedCourses(newSelections);
+    setActiveVariation(null);
+
+    if (addedCount > 0) {
+      let msg = `✅ ${studentDepartment} ${selectedSemester}. Dönem: ${addedCount} zorunlu ders programa eklendi!`;
+      if (notOffered.length > 0) {
+        msg += ` (${notOffered.length} ders bu dönem açılmamış: ${notOffered.slice(0, 3).join(', ')}${notOffered.length > 3 ? '...' : ''})`;
+      }
+      setToast({ message: msg, type: 'success' });
+    } else if (alreadyAddedCount > 0) {
+      setToast({
+        message: `ℹ️ ${studentDepartment} ${selectedSemester}. Dönem dersleri (${alreadyAddedCount} ders) zaten listenizde bulunuyor.`,
+        type: 'info',
+      });
+    } else {
+      setToast({
+        message: `⚠️ Seçilen dönemin dersleri bu akademik dönemde ODTÜ SIS'te açık bulunamadı (${notOffered.join(', ')}).`,
+        type: 'warning',
+      });
+    }
   };
 
   // Handlers for Blocked Slots
@@ -206,7 +314,7 @@ export default function App() {
     setBlockedSlots(newSet);
   };
 
-  // Pin a generated variation as the permanent selected courses
+  // Pin variation
   const handlePinVariation = (variation) => {
     if (!variation || !variation.items) return;
     setSelectedCourses(
@@ -215,9 +323,13 @@ export default function App() {
         section: item.section,
       }))
     );
+    setToast({
+      message: 'Planlanan varyasyon sabit ders listenize kaydedildi!',
+      type: 'success',
+    });
   };
 
-  // Load a saved plan into application state
+  // Load saved plan
   const handleLoadPlan = (plan) => {
     if (!plan) return;
 
@@ -227,8 +339,10 @@ export default function App() {
     if (plan.studentSurname !== undefined) {
       setStudentSurname(plan.studentSurname);
     }
+    if (plan.selectedSemester) {
+      setSelectedSemester(plan.selectedSemester);
+    }
 
-    // 1. Restore fixed courses
     const coursesToRestore = plan.fixedCourses || plan.selectedCourses || [];
     if (coursesToRestore && coursesToRestore.length > 0) {
       const hydrated = coursesToRestore
@@ -251,46 +365,49 @@ export default function App() {
       setSelectedCourses([]);
     }
 
-    // 2. Restore electives pool
     const pool = plan.enabledElectiveCodes || plan.enabledMe4Codes;
     if (pool && Array.isArray(pool)) {
       setEnabledElectiveCodes(new Set(pool));
     }
 
-    // 3. Restore blocked slots
     if (plan.blockedSlots) {
       setBlockedSlots(new Set(plan.blockedSlots));
     }
 
-    // 4. Restore target total count
     if (plan.targetTotalCount) {
       setTargetTotalCount(plan.targetTotalCount);
     }
 
-    // 5. Restore sort criterion
     if (plan.sortCriterion) {
       setSortCriterion(plan.sortCriterion);
     }
 
     setActiveVariation(null);
+    setToast({
+      message: `"${plan.name || 'Plan'}" başarıyla yüklendi!`,
+      type: 'success',
+    });
   };
 
-  // Reset all selections
+  // Reset all
   const handleResetAll = () => {
-    if (window.confirm('Tüm ders seçimlerini ve bloklu saatleri sıfırlamak istediğinize emin misiniz?')) {
+    if (window.confirm('Tüm seçili dersleri ve programı sıfırlamak istediğinize emin misiniz?')) {
       setSelectedCourses([]);
       setBlockedSlots(new Set());
       setTargetTotalCount(5);
       setActiveVariation(null);
+      setToast({
+        message: 'Ders listesi ve program sıfırlandı.',
+        type: 'info',
+      });
     }
   };
 
-  // Sync latest data from SIS for current department
+  // Sync data
   const handleSyncData = async () => {
     try {
       setIsSyncing(true);
       setSyncMessage('ODTÜ SIS taranıyor...');
-      // Fetch public json or trigger refresh
       const res = await fetch('/data/all_courses.json');
       if (res.ok) {
         const fresh = await res.json();
@@ -326,141 +443,229 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl 2xl:max-w-[1536px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Top Control Bar with Quick Info & Actions */}
-        <div className="flex flex-wrap items-center justify-between gap-4 bg-white/80 dark:bg-slate-900/60 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 backdrop-blur-sm shadow-xs">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="flex h-3 w-3 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-            </span>
+      <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-4">
+        {/* Top Control Bar: Department, Semester (1-8), Must Courses Fetch, Surname */}
+        <SemesterBar
+          studentDepartment={studentDepartment}
+          onOpenDepartmentsModal={() => setIsDepartmentsModalOpen(true)}
+          selectedSemester={selectedSemester}
+          onChangeSemester={setSelectedSemester}
+          studentSurname={studentSurname}
+          onChangeSurname={setStudentSurname}
+          checkSurname={checkSurname}
+          onToggleCheckSurname={() => setCheckSurname(!checkSurname)}
+          onFetchMustCourses={handleFetchMustCourses}
+          onResetAll={handleResetAll}
+          onOpenSaveModal={() => setIsSaveModalOpen(true)}
+          selectedCoursesCount={selectedCourses.length}
+        />
 
-            <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">
-              Aktif Bölüm:{' '}
-              <strong className="text-indigo-600 dark:text-indigo-400">
-                {studentDepartment}
-              </strong>{' '}
-              &bull;{' '}
-              <strong className="text-slate-900 dark:text-white">
-                {displayScheduledItems.length} Ders Kayıtlı
-              </strong>{' '}
-              ({blockedSlots.size} saat bloklu)
-            </span>
+        {/* Dynamic Toast / Feedback Alert */}
+        {toast && (
+          <div
+            className={`px-4 py-3 rounded-2xl border text-xs font-semibold flex items-center justify-between shadow-xs transition-all animate-in fade-in slide-in-from-top-2 duration-200 ${
+              toast.type === 'success'
+                ? 'bg-emerald-50 dark:bg-emerald-950/70 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200'
+                : toast.type === 'warning'
+                ? 'bg-amber-50 dark:bg-amber-950/70 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-200'
+                : 'bg-indigo-50 dark:bg-indigo-950/70 border-indigo-300 dark:border-indigo-800 text-indigo-800 dark:text-indigo-200'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              {toast.type === 'success' && <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />}
+              {toast.type === 'warning' && <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />}
+              <span>{toast.message}</span>
+            </div>
+            <button
+              onClick={() => setToast(null)}
+              className="p-1 hover:opacity-75 font-bold text-sm ml-2 cursor-pointer"
+              title="Kapat"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
-            {studentSurname && (
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                Soyad Kriteri: {studentSurname.slice(0, 2).toUpperCase()} ({checkSurname ? 'Aktif' : 'Pasif'})
+        {/* Mobile Tab Switcher */}
+        <div className="lg:hidden flex items-center p-1 bg-slate-200/80 dark:bg-slate-800/80 rounded-2xl gap-1">
+          <button
+            onClick={() => setMobileTab('courses')}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
+              mobileTab === 'courses'
+                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400'
+            }`}
+          >
+            📋 Derslerim & Arama ({selectedCourses.length})
+          </button>
+          <button
+            onClick={() => setMobileTab('timetable')}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
+              mobileTab === 'timetable'
+                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400'
+            }`}
+          >
+            📅 Haftalık Takvim ({displayScheduledItems.length})
+          </button>
+        </div>
+
+        {/* Responsive Dashboard Grid (Left: Controls & Courses, Right: Timetable) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+          {/* Left Column: Course Search, Selected Courses, and Collapsible Advanced Tools */}
+          <div
+            className={`lg:col-span-5 xl:col-span-4 flex flex-col gap-4 ${
+              mobileTab === 'timetable' ? 'hidden lg:flex' : 'flex'
+            }`}
+          >
+            {/* 1. Universal Course Search */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-xs">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-2 px-1">
+                Ders Arama & Ekleme
               </span>
-            )}
+              <UniversalCourseSearch
+                allCourses={coursesData.courses}
+                selectedCourses={selectedCourses}
+                onAddCourse={handleAddCourse}
+                currentDepartment={studentDepartment}
+                studentSurname={studentSurname}
+                blockedSlots={blockedSlots}
+                checkSurname={checkSurname}
+              />
+            </div>
+
+            {/* 2. Selected Courses List with Section Dropdowns & Conflict Indicators */}
+            <SelectedCoursesList
+              selectedCourses={selectedCourses}
+              onRemoveCourse={handleRemoveCourse}
+              onChangeCourseSection={handleChangeCourseSection}
+              studentSurname={studentSurname}
+              studentDepartment={studentDepartment}
+              checkSurname={checkSurname}
+              blockedSlots={blockedSlots}
+              onHoverCourse={setPreviewItems}
+              onClearAll={handleResetAll}
+            />
+
+            {/* 3. Collapsible Advanced Tools */}
+            <div className="flex flex-col gap-3">
+              {/* Accordion: Akıllı Planlayıcı (Çakışmasız Varyasyonlar) */}
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs transition-all">
+                <button
+                  type="button"
+                  onClick={() => setIsSolverOpen(!isSolverOpen)}
+                  className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+                      <Sparkles className="w-4 h-4" />
+                    </span>
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 m-0">
+                        Akıllı Planlayıcı & Varyasyonlar
+                      </h4>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 m-0">
+                        Çakışmasız program kombinasyonları & seçmeli optimizasyonu
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                      isSolverOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+
+                {isSolverOpen && (
+                  <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-900/40">
+                    <VariationExplorer
+                      allCourses={coursesData.courses}
+                      studentDepartment={studentDepartment}
+                      studentSurname={studentSurname}
+                      checkSurname={checkSurname}
+                      checkDepartment={checkDepartment}
+                      selectedCourses={selectedCourses}
+                      blockedSlots={blockedSlots}
+                      targetTotalCount={targetTotalCount}
+                      onChangeTargetTotal={setTargetTotalCount}
+                      activeVariation={activeVariation}
+                      onSelectVariation={setActiveVariation}
+                      onPinVariation={handlePinVariation}
+                      onPreviewHover={setPreviewItems}
+                      enabledElectiveCodes={enabledElectiveCodes}
+                      onChangeEnabledElectiveCodes={setEnabledElectiveCodes}
+                      sortCriterion={sortCriterion}
+                      onChangeSortCriterion={setSortCriterion}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Accordion: Saat Bloklama (İstenmeyen Saatler) */}
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs transition-all">
+                <button
+                  type="button"
+                  onClick={() => setIsBlockerOpen(!isBlockerOpen)}
+                  className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
+                      <Clock className="w-4 h-4" />
+                    </span>
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 m-0">
+                        İstenmeyen Saatleri Engelle ({blockedSlots.size} Saat Bloklu)
+                      </h4>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 m-0">
+                        Sabah 08:40, Cuma öğleden sonra vb. saatleri kapat
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                      isBlockerOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+
+                {isBlockerOpen && (
+                  <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-900/40">
+                    <BlockedHoursManager
+                      blockedSlots={blockedSlots}
+                      onUpdateBlockedSlots={handleUpdateBlockedSlots}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsDepartmentsModalOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-semibold transition-all"
-              title="Okuldaki tüm bölümleri listele ve seç"
-            >
-              <Building2 className="w-3.5 h-3.5 text-indigo-500" />
-              <span>Bölüm Değiştir ({studentDepartment})</span>
-            </button>
-
-            {studentDepartment === 'ME' && (
-              <button
-                onClick={() => setIsRegGuideOpen(true)}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-600/20 dark:hover:bg-purple-600/30 text-purple-700 dark:text-purple-200 border border-purple-200 dark:border-purple-500/40 text-xs font-semibold shadow-xs transition-all"
-              >
-                <FileText className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-                <span className="hidden sm:inline">4xx Kayıt Bilgisi (Resmi PDF)</span>
-                <span className="sm:hidden">4xx PDF</span>
-              </button>
-            )}
-
-            <button
-              onClick={() => setIsSaveModalOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-900/20 transition-all transform hover:scale-[1.02]"
-              title="Seçimleri Kaydet, Kayıtlı Tercihleri Yükle, SIS Kodları veya JSON Dosyasını Yönet"
-            >
-              <BookmarkPlus className="w-3.5 h-3.5" />
-              <span>Seçimleri Kaydet</span>
-            </button>
+          {/* Right Column: Weekly Timetable (Always prominent, interactive & visible!) */}
+          <div
+            className={`lg:col-span-7 xl:col-span-8 ${
+              mobileTab === 'courses' ? 'hidden lg:block' : 'block'
+            }`}
+          >
+            <Timetable
+              scheduledItems={displayScheduledItems}
+              blockedSlots={blockedSlots}
+              onToggleBlockSlot={handleToggleBlockSlot}
+              previewItems={previewItems}
+              timetableRef={timetableRef}
+              onOpenExport={() => setIsExportModalOpen(true)}
+            />
           </div>
-        </div>
-
-        {/* 1) Top: Universal Course Search & Course Catalog */}
-        <div className="w-full">
-          <CourseSelector
-            allCourses={coursesData.courses}
-            departments={departmentsData}
-            studentDepartment={studentDepartment}
-            onChangeDepartment={setStudentDepartment}
-            onOpenDepartmentsModal={() => setIsDepartmentsModalOpen(true)}
-            studentSurname={studentSurname}
-            onChangeSurname={setStudentSurname}
-            checkSurname={checkSurname}
-            onToggleCheckSurname={() => setCheckSurname(!checkSurname)}
-            checkDepartment={checkDepartment}
-            onToggleCheckDepartment={() => setCheckDepartment(!checkDepartment)}
-            selectedCourses={selectedCourses}
-            onAddCourse={handleAddCourse}
-            onRemoveCourse={handleRemoveCourse}
-            onChangeCourseSection={handleChangeCourseSection}
-            blockedSlots={blockedSlots}
-            onPreviewHover={setPreviewItems}
-          />
-        </div>
-
-        {/* 2) Variation Explorer & Elective Optimizer */}
-        <div className="w-full">
-          <VariationExplorer
-            allCourses={coursesData.courses}
-            studentDepartment={studentDepartment}
-            studentSurname={studentSurname}
-            checkSurname={checkSurname}
-            checkDepartment={checkDepartment}
-            selectedCourses={selectedCourses}
-            blockedSlots={blockedSlots}
-            targetTotalCount={targetTotalCount}
-            onChangeTargetTotal={setTargetTotalCount}
-            activeVariation={activeVariation}
-            onSelectVariation={setActiveVariation}
-            onPinVariation={handlePinVariation}
-            onPreviewHover={setPreviewItems}
-            enabledElectiveCodes={enabledElectiveCodes}
-            onChangeEnabledElectiveCodes={setEnabledElectiveCodes}
-            sortCriterion={sortCriterion}
-            onChangeSortCriterion={setSortCriterion}
-          />
-        </div>
-
-        {/* 3) Blocked Hours Manager */}
-        <div className="w-full">
-          <BlockedHoursManager
-            blockedSlots={blockedSlots}
-            onUpdateBlockedSlots={handleUpdateBlockedSlots}
-          />
-        </div>
-
-        {/* 4) Weekly Timetable */}
-        <div className="w-full">
-          <Timetable
-            scheduledItems={displayScheduledItems}
-            blockedSlots={blockedSlots}
-            onToggleBlockSlot={handleToggleBlockSlot}
-            previewItems={previewItems}
-            timetableRef={timetableRef}
-            onOpenExport={() => setIsExportModalOpen(true)}
-          />
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950 py-6 text-center text-xs text-slate-500 dark:text-slate-400 no-print transition-colors">
-        <div className="max-w-7xl mx-auto px-4 space-y-2">
+      <footer className="border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950 py-5 text-center text-xs text-slate-500 dark:text-slate-400 no-print transition-colors">
+        <div className="max-w-[1600px] mx-auto px-4 space-y-1.5">
           <p className="m-0 font-medium">
-            ODTÜ Tüm Bölümler Ders Programı & Planlayıcı • Robotdeğilim & SIS Altyapısı
+            ODTÜ Tüm Bölümler Ders Programı & Planlayıcı &bull; 56 Lisans Bölümü Resmi Müfredatı
           </p>
           <p className="m-0 text-slate-400 dark:text-slate-500 text-[11px]">
-            156 Bölüm • 5,300+ Ders &bull; Soyad & Bölüm Kriter Kontrolü &bull; Otomatik Varyasyon Optimizasyonu
+            156 Bölüm &bull; 5,302 Ders &bull; 1-8. Dönem Zorunlu Dersleri &bull; Soyad Kriteri &bull; Çakışmasız Program Oluşturucu
           </p>
         </div>
       </footer>

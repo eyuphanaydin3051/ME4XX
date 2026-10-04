@@ -1,6 +1,7 @@
 // src/components/UniversalCourseSearch.jsx
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Search, Plus, Check, BookOpen, AlertCircle, X, Layers } from 'lucide-react';
+import { Search, Plus, Check, BookOpen, AlertCircle, X, Layers, Sparkles } from 'lucide-react';
+import { autoSelectEligibleSection } from '../utils/curriculum';
 
 const normalise = (text) =>
   String(text || '')
@@ -13,6 +14,9 @@ export default function UniversalCourseSearch({
   selectedCourses = [],
   onAddCourse,
   currentDepartment = 'ME',
+  studentSurname = '',
+  blockedSlots = new Set(),
+  checkSurname = true,
 }) {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -94,9 +98,14 @@ export default function UniversalCourseSearch({
   };
 
   const handleSelectCourse = (course) => {
-    const defaultSection =
-      course.sections.find((s) => s.hasSchedule) || course.sections[0] || null;
-    onAddCourse(course, defaultSection);
+    const bestSection = autoSelectEligibleSection(
+      course,
+      checkSurname ? studentSurname : '',
+      currentDepartment,
+      blockedSlots,
+      selectedCourses
+    );
+    onAddCourse(course, bestSection);
     setQuery('');
     setIsOpen(false);
   };
