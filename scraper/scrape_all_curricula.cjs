@@ -51,14 +51,37 @@ function parseCurriculum(html) {
     
     const semHtml = html.substring(startIdx, endIdx);
     
-    const regex = /course\.php\?[^"']*course_code=(\d+)["'][^>]*>([^<]+)<\/a>[\s\S]*?<td class="course">([^<]+)<\/td>/gi;
+    // Parse table row with credits:
+    // <tr><td class="short_course"><a href="course.php?prog=569&course_code=5690400">ME400</a></td>
+    // <td class="course">SUMMER PRACTICE II </td>
+    // <td align="center">0</td>
+    // <td align="center">0</td>
+    // <td align="center">0</td>
+    // <td align="center">5.0</td>
+    // </tr>
+    const regex = /course\.php\?[^"']*course_code=(\d+)["'][^>]*>([^<]+)<\/a>[\s\S]*?<td class="course">([^<]+)<\/td>[\s\S]*?<td[^>]*>([^<]*)<\/td>[\s\S]*?<td[^>]*>([^<]*)<\/td>[\s\S]*?<td[^>]*>([^<]*)<\/td>[\s\S]*?<td[^>]*>([^<]*)<\/td>/gi;
     const courses = [];
     let match;
     while ((match = regex.exec(semHtml)) !== null) {
+      const code = parseInt(match[1], 10);
+      const abbr = match[2].trim();
+      const courseName = match[3].trim().replace(/\s+/g, ' ').replace(/&amp;/g, '&');
+      const credit = parseFloat(match[4].trim()) || 0;
+      const contact = parseFloat(match[5].trim()) || 0;
+      const lab = parseFloat(match[6].trim()) || 0;
+      const ects = parseFloat(match[7].trim()) || 0;
+
+      const isNonCredit = credit === 0 && contact === 0;
+
       courses.push({
-        code: parseInt(match[1], 10),
-        abbr: match[2].trim(),
-        name: match[3].trim().replace(/\s+/g, ' ').replace(/&amp;/g, '&')
+        code,
+        abbr,
+        name: courseName,
+        credit,
+        contact,
+        lab,
+        ects,
+        isNonCredit
       });
       totalMusts++;
     }
@@ -70,7 +93,7 @@ function parseCurriculum(html) {
 }
 
 async function scrapeAll() {
-  console.log(`Starting curriculum scraper for ${depts.length} departments...`);
+  console.log(`Starting enhanced curriculum scraper for ${depts.length} departments...`);
   
   const output = {
     departments: {},
@@ -82,7 +105,6 @@ async function scrapeAll() {
     }
   };
 
-  // We can process in chunks of 5
   for (let i = 0; i < depts.length; i += 5) {
     const chunk = depts.slice(i, i + 5);
     const results = await Promise.all(chunk.map(async (dept) => {
@@ -104,15 +126,14 @@ async function scrapeAll() {
         output.abbrIndex[res.dept.abbr] = res.dept.code;
         output.metadata.departments_count++;
         output.metadata.total_courses += res.totalMusts;
-        console.log(`[+] ${res.dept.abbr} (${res.dept.code}) - ${Object.keys(res.semesters).length} semesters, ${res.totalMusts} must courses`);
+        console.log(`[+] ${res.dept.abbr} (${res.dept.code}) - ${Object.keys(res.semesters).length} semesters, ${res.totalMusts} courses`);
       }
     }
   }
 
   const outPath = path.join(__dirname, '../src/data/curricula.json');
   fs.writeFileSync(outPath, JSON.stringify(output, null, 2), 'utf8');
-  console.log(`\nSuccessfully saved curricula to ${outPath}`);
-  console.log(`Total departments: ${output.metadata.departments_count}, Total must courses across semesters: ${output.metadata.total_courses}`);
+  console.log(`\nSuccessfully saved updated curricula to ${outPath}`);
 }
 
 scrapeAll();

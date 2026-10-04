@@ -14,11 +14,11 @@ import SavePreferencesModal from './components/SavePreferencesModal';
 import DepartmentsModal from './components/DepartmentsModal';
 import HelpModal from './components/HelpModal';
 import RegistrationGuideModal from './components/RegistrationGuideModal';
+import UnscheduledCoursesCard from './components/UnscheduledCoursesCard';
 import { loadSavedState, saveState } from './utils/storage';
 import {
-  getMustCoursesForSemester,
-  matchMustCourseInCatalog,
   autoSelectEligibleSection,
+  partitionMustCourses,
 } from './utils/curriculum';
 import {
   Sparkles,
@@ -229,10 +229,14 @@ export default function App() {
     setActiveVariation(null);
   };
 
-  // Handler: Fetch Must Courses for current Department & Semester
+  // Partition must courses for active department and semester (Scheduled timetable courses vs. Unscheduled/Non-credit courses)
+  const { scheduledMusts, unscheduledMusts } = useMemo(() => {
+    return partitionMustCourses(studentDepartment, selectedSemester, coursesData.courses);
+  }, [studentDepartment, selectedSemester, coursesData.courses]);
+
+  // Handler: Fetch Must Courses for current Department & Semester (Scheduled courses only)
   const handleFetchMustCourses = () => {
-    const mustCourses = getMustCoursesForSemester(studentDepartment, selectedSemester);
-    if (!mustCourses || mustCourses.length === 0) {
+    if (scheduledMusts.length === 0 && unscheduledMusts.length === 0) {
       setToast({
         message: `${studentDepartment} ${selectedSemester}. Dönem için kayıtlı zorunlu ders bulunamadı.`,
         type: 'warning',
@@ -245,10 +249,11 @@ export default function App() {
     const notOffered = [];
     const newSelections = [...selectedCourses];
 
-    for (const must of mustCourses) {
-      const fullCourse = matchMustCourseInCatalog(must, coursesData.courses);
+    // ONLY add scheduled courses (exclude 0-credit or unscheduled courses like OHS 301, ME 400)
+    for (const item of scheduledMusts) {
+      const fullCourse = item.course;
       if (!fullCourse) {
-        notOffered.push(must.abbr);
+        notOffered.push(item.mustMeta.abbr);
         continue;
       }
 
@@ -279,16 +284,20 @@ export default function App() {
     setActiveVariation(null);
 
     if (addedCount > 0) {
-      let msg = `✅ ${studentDepartment} ${selectedSemester}. Dönem: ${addedCount} zorunlu ders programa eklendi!`;
+      let msg = `✅ ${studentDepartment} ${selectedSemester}. Dönem: ${addedCount} zorunlu ders takvime eklendi!`;
+      if (unscheduledMusts.length > 0) {
+        msg += ` (${unscheduledMusts.map((u) => u.mustMeta.abbr).join(', ')} kredisiz/saatsiz ders olduğu için takvime eklenmedi).`;
+      }
       if (notOffered.length > 0) {
-        msg += ` (${notOffered.length} ders bu dönem açılmamış: ${notOffered.slice(0, 3).join(', ')}${notOffered.length > 3 ? '...' : ''})`;
+        msg += ` [${notOffered.length} ders bu dönem açılmamış].`;
       }
       setToast({ message: msg, type: 'success' });
     } else if (alreadyAddedCount > 0) {
-      setToast({
-        message: `ℹ️ ${studentDepartment} ${selectedSemester}. Dönem dersleri (${alreadyAddedCount} ders) zaten listenizde bulunuyor.`,
-        type: 'info',
-      });
+      let msg = `ℹ️ ${studentDepartment} ${selectedSemester}. Dönem dersleri (${alreadyAddedCount} ders) zaten listenizde bulunuyor.`;
+      if (unscheduledMusts.length > 0) {
+        msg += ` (${unscheduledMusts.map((u) => u.mustMeta.abbr).join(', ')} saatsiz/staj dersidir).`;
+      }
+      setToast({ message: msg, type: 'info' });
     } else {
       setToast({
         message: `⚠️ Seçilen dönemin dersleri bu akademik dönemde ODTÜ SIS'te açık bulunamadı (${notOffered.join(', ')}).`,
@@ -446,6 +455,7 @@ export default function App() {
       <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-4">
         {/* Top Control Bar: Department, Semester (1-8), Must Courses Fetch, Surname */}
         <SemesterBar
+          allCourses={coursesData.courses}
           studentDepartment={studentDepartment}
           onOpenDepartmentsModal={() => setIsDepartmentsModalOpen(true)}
           selectedSemester={selectedSemester}
@@ -547,7 +557,14 @@ export default function App() {
               onClearAll={handleResetAll}
             />
 
-            {/* 3. Collapsible Advanced Tools */}
+            {/* 3. Non-credit / Unscheduled Must Courses (Staj, OHS, etc.) */}
+            <UnscheduledCoursesCard
+              unscheduledMusts={unscheduledMusts}
+              selectedCourses={selectedCourses}
+              onAddCourse={handleAddCourse}
+            />
+
+            {/* 4. Collapsible Advanced Tools */}
             <div className="flex flex-col gap-3">
               {/* Accordion: Akıllı Planlayıcı (Çakışmasız Varyasyonlar) */}
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs transition-all">

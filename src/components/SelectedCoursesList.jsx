@@ -16,6 +16,7 @@ import {
 import { evaluateSectionEligibility } from '../utils/surname';
 import { schedulesConflict, sectionConflictsWithBlocked } from '../utils/timeSlots';
 import { getCourseColor } from '../utils/colors';
+import { isCourseScheduled } from '../utils/curriculum';
 
 export default function SelectedCoursesList({
   selectedCourses = [], // [{ course, section }]
@@ -191,7 +192,8 @@ export default function SelectedCoursesList({
                               ? ' [✓ Uygun]'
                               : ' [⚠️ Kriter Dışı]'
                             : '';
-                        const schedText = s.hasSchedule ? '' : ' (Saat Belirtilmemiş)';
+                        const hasSched = s.hasSchedule;
+                        const schedText = hasSched ? '' : isCourseScheduled(course) ? ' (Saat Belirtilmemiş)' : ' (Saatsiz / Staj)';
                         return (
                           <option
                             key={s.sectionNumber}
@@ -214,6 +216,13 @@ export default function SelectedCoursesList({
                       <User className="w-3 h-3 text-slate-400" />
                       {section?.instructor || 'STAFF'}
                     </span>
+
+                    {/* Unscheduled / Non-credit Badge */}
+                    {!isCourseScheduled(course) && (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                        ℹ️ Saatsiz / Takvim Dışı
+                      </span>
+                    )}
 
                     {/* Criteria Status */}
                     {checkSurname && criteriaEval && (

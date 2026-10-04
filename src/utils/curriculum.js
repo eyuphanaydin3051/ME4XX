@@ -54,6 +54,58 @@ export function getMustCoursesForSemester(deptAbbrOrCode, semester) {
 }
 
 /**
+ * Checks whether a course has at least one scheduled slot on the weekly timetable.
+ */
+export function isCourseScheduled(course) {
+  if (!course || !course.sections || course.sections.length === 0) return false;
+  return course.sections.some(
+    (s) => s.hasSchedule && Array.isArray(s.schedule) && s.schedule.length > 0
+  );
+}
+
+/**
+ * Checks whether a course is non-credit or has no lecture hours on the timetable
+ * (e.g. OHS 101, OHS 301, ME 300, ME 400, IS 100, BA 100, etc.).
+ */
+export function isCourseNonCreditOrUnscheduled(course, mustCourseMeta = null) {
+  if (mustCourseMeta && (mustCourseMeta.isNonCredit || mustCourseMeta.credit === 0)) {
+    return true;
+  }
+  if (!course) return true;
+  return !isCourseScheduled(course);
+}
+
+/**
+ * Partitions the must courses of a department & semester into scheduled courses vs.
+ * non-credit / unscheduled courses (Staj, OHS, IS100, etc.).
+ */
+export function partitionMustCourses(deptAbbrOrCode, semester, allCourses) {
+  const musts = getMustCoursesForSemester(deptAbbrOrCode, semester);
+  const scheduledMusts = [];
+  const unscheduledMusts = [];
+
+  for (const m of musts) {
+    const fullCourse = matchMustCourseInCatalog(m, allCourses);
+    const isUnscheduled = isCourseNonCreditOrUnscheduled(fullCourse, m);
+
+    const item = {
+      mustMeta: m,
+      course: fullCourse,
+      isAvailableInCatalog: !!fullCourse,
+      isUnscheduled,
+    };
+
+    if (isUnscheduled) {
+      unscheduledMusts.push(item);
+    } else {
+      scheduledMusts.push(item);
+    }
+  }
+
+  return { scheduledMusts, unscheduledMusts };
+}
+
+/**
  * Matches a must course from curriculum to the full course record in all_courses.json.
  */
 export function matchMustCourseInCatalog(mustCourse, allCourses) {
