@@ -1,5 +1,5 @@
 // src/components/SemesterBar.jsx
-import React, { useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   Sparkles,
   User,
@@ -9,6 +9,10 @@ import {
   Calendar,
   BookOpen,
   Info,
+  Sliders,
+  Check,
+  Shield,
+  Layers,
 } from 'lucide-react';
 import {
   getAvailableSemesters,
@@ -26,11 +30,29 @@ export default function SemesterBar({
   onChangeSurname,
   checkSurname = true,
   onToggleCheckSurname,
+  checkDepartment = true,
+  onToggleCheckDepartment,
+  checkCollision = true,
+  onToggleCheckCollision,
   onFetchMustCourses,
   onResetAll,
   onOpenSaveModal,
   selectedCoursesCount = 0,
 }) {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const settingsRef = useRef(null);
+
+  // Close settings on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (settingsRef.current && !settingsRef.current.contains(event.target)) {
+        setIsSettingsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   // Available semesters for this department
   const availableSemesters = useMemo(() => {
     return getAvailableSemesters(studentDepartment);
@@ -151,26 +173,13 @@ export default function SemesterBar({
                   {surnamePrefix}
                 </span>
               ) : null}
-
-              <button
-                type="button"
-                onClick={onToggleCheckSurname}
-                className={`text-[10px] font-medium px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
-                  checkSurname
-                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
-                    : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
-                }`}
-                title={checkSurname ? 'Kriter filtresi aktif' : 'Kriter filtresi pasif'}
-              >
-                {checkSurname ? 'Kriter: Açık' : 'Kapalı'}
-              </button>
             </div>
           </div>
         </div>
 
-        {/* Right: "⚡ Zorunlu Dersleri Getir" & Action Buttons */}
+        {/* Right: Actions and Settings */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Main Action: Fetch Must Courses (Only Scheduled Courses) */}
+          {/* Main Action: Fetch Must Courses (Scheduled timetable courses only) */}
           <button
             type="button"
             onClick={onFetchMustCourses}
@@ -184,6 +193,86 @@ export default function SemesterBar({
               {scheduledMusts.length} Ders
             </span>
           </button>
+
+          {/* Settings Popover (Robotdeğilim style: Check Surname, Check Department, Check Collision) */}
+          <div className="relative" ref={settingsRef}>
+            <button
+              type="button"
+              onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+              className={`flex items-center gap-1.5 px-3 py-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                isSettingsOpen || (!checkSurname || !checkDepartment || !checkCollision)
+                  ? 'bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-700'
+                  : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700'
+              }`}
+              title="Soyad, bölüm ve çakışma kontrolü ayarları"
+            >
+              <Sliders className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+              <span>Ayarlar</span>
+            </button>
+
+            {/* Settings Dropdown Popover */}
+            {isSettingsOpen && (
+              <div className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-3 z-30 flex flex-col gap-2.5 animate-in fade-in zoom-in-95 duration-150">
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block border-b border-slate-100 dark:border-slate-800 pb-2">
+                  Planlayıcı & Kriter Ayarları
+                </span>
+
+                {/* 1. Check Surname */}
+                <label className="flex items-start gap-2.5 p-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={checkSurname}
+                    onChange={onToggleCheckSurname}
+                    className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      Soyad Kontrolü (Check Surname)
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                      Şubelerin harf aralığına uygunluğunu denetler
+                    </span>
+                  </div>
+                </label>
+
+                {/* 2. Check Department */}
+                <label className="flex items-start gap-2.5 p-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={checkDepartment}
+                    onChange={onToggleCheckDepartment}
+                    className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      Bölüm Kontrolü (Check Department)
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                      Yalnızca bölümünüze açık şubeleri seçer
+                    </span>
+                  </div>
+                </label>
+
+                {/* 3. Check Collision */}
+                <label className="flex items-start gap-2.5 p-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={checkCollision}
+                    onChange={onToggleCheckCollision}
+                    className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      Çakışma Kontrolü (Check Collision)
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                      Derslerin saat çakışmalarını engeller & uyarır
+                    </span>
+                  </div>
+                </label>
+              </div>
+            )}
+          </div>
 
           {/* Save / Preferences */}
           <button

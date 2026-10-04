@@ -25,12 +25,16 @@ export default function SelectedCoursesList({
   studentSurname = '',
   studentDepartment = 'ME',
   checkSurname = true,
+  checkDepartment = true,
+  checkCollision = true,
   blockedSlots = new Set(),
   onHoverCourse,
   onClearAll,
+  onOpenDetails,
 }) {
   // Check conflicts for a course's selected section
   const getCourseConflicts = (item) => {
+    if (!checkCollision) return [];
     if (!item.section || !item.section.hasSchedule) return [];
     const conflicts = [];
 
@@ -73,7 +77,7 @@ export default function SelectedCoursesList({
     }
 
     return { totalCredits, totalWeeklyHours, conflictCount };
-  }, [selectedCourses, blockedSlots]);
+  }, [selectedCourses, blockedSlots, checkCollision]);
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col gap-3 transition-colors">
@@ -87,7 +91,7 @@ export default function SelectedCoursesList({
         </div>
 
         <div className="flex items-center gap-2">
-          {summary.conflictCount > 0 && (
+          {summary.conflictCount > 0 && checkCollision && (
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950/70 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900 flex items-center gap-1 animate-pulse">
               <AlertTriangle className="w-3 h-3" />
               {summary.conflictCount} Çakışma Var!
@@ -121,12 +125,14 @@ export default function SelectedCoursesList({
           {selectedCourses.map((item) => {
             const { course, section } = item;
             const conflicts = getCourseConflicts(item);
-            const colorClass = getCourseColor(course.code);
 
             // Criteria eligibility evaluation for the selected section
             const criteriaEval =
               section && (studentSurname || studentDepartment)
-                ? evaluateSectionEligibility(section, studentSurname, studentDepartment)
+                ? evaluateSectionEligibility(section, studentDepartment, studentSurname, {
+                    checkDept: checkDepartment,
+                    checkSurname,
+                  })
                 : null;
 
             return (
@@ -154,14 +160,27 @@ export default function SelectedCoursesList({
                     </span>
                   </div>
 
-                  <button
-                    onClick={() => onRemoveCourse(course.code)}
-                    type="button"
-                    className="shrink-0 p-1 text-slate-400 hover:text-red-500 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                    title={`${course.codeStr} dersini programdan kaldır`}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {/* View Details / Info Button */}
+                    <button
+                      onClick={() => onOpenDetails && onOpenDetails(course, section)}
+                      type="button"
+                      className="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                      title={`${course.codeStr} hakkında detaylı bilgi, tüm şubeler ve kriterler`}
+                    >
+                      <Info className="w-3.5 h-3.5" />
+                    </button>
+
+                    {/* Remove Course Button */}
+                    <button
+                      onClick={() => onRemoveCourse(course.code)}
+                      type="button"
+                      className="p-1 text-slate-400 hover:text-red-500 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                      title={`${course.codeStr} dersini programdan kaldır`}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Section Selector */}
@@ -184,10 +203,13 @@ export default function SelectedCoursesList({
                       {course.sections.map((s) => {
                         const sEval =
                           studentSurname || studentDepartment
-                            ? evaluateSectionEligibility(s, studentSurname, studentDepartment)
+                            ? evaluateSectionEligibility(s, studentDepartment, studentSurname, {
+                                checkDept: checkDepartment,
+                                checkSurname,
+                              })
                             : null;
                         const sCrit =
-                          checkSurname && sEval
+                          (checkSurname || checkDepartment) && sEval
                             ? sEval.eligible
                               ? ' [✓ Uygun]'
                               : ' [⚠️ Kriter Dışı]'
@@ -224,8 +246,8 @@ export default function SelectedCoursesList({
                       </span>
                     )}
 
-                    {/* Criteria Status */}
-                    {checkSurname && criteriaEval && (
+                    {/* Criteria Status Badge */}
+                    {(checkSurname || checkDepartment) && criteriaEval && (
                       <span
                         className={`text-[10px] font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${
                           criteriaEval.eligible
@@ -242,22 +264,23 @@ export default function SelectedCoursesList({
                         ) : (
                           <>
                             <AlertTriangle className="w-3 h-3 text-amber-600" />
-                            Kriter Dışı
+                            {criteriaEval.badgeLabel}
                           </>
                         )}
                       </span>
                     )}
 
                     {/* Conflict Badges */}
-                    {conflicts.map((conf, idx) => (
-                      <span
-                        key={idx}
-                        className="text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 dark:bg-red-950/70 text-red-700 dark:text-red-300 flex items-center gap-1"
-                      >
-                        <AlertTriangle className="w-3 h-3 shrink-0" />
-                        {conf.text}
-                      </span>
-                    ))}
+                    {checkCollision &&
+                      conflicts.map((conf, idx) => (
+                        <span
+                          key={idx}
+                          className="text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 dark:bg-red-950/70 text-red-700 dark:text-red-300 flex items-center gap-1"
+                        >
+                          <AlertTriangle className="w-3 h-3 shrink-0" />
+                          {conf.text}
+                        </span>
+                      ))}
                   </div>
                 </div>
               </div>

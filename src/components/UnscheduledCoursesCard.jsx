@@ -6,6 +6,7 @@ export default function UnscheduledCoursesCard({
   unscheduledMusts = [],
   selectedCourses = [],
   onAddCourse,
+  onOpenDetails,
 }) {
   if (!unscheduledMusts || unscheduledMusts.length === 0) {
     return null;
@@ -67,38 +68,50 @@ export default function UnscheduledCoursesCard({
                 </span>
 
                 {course && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!isSelected) {
-                        const sec = course.sections[0] || null;
-                        onAddCourse(course, sec);
-                      }
-                    }}
-                    disabled={isSelected}
-                    className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-semibold transition-all ${
-                      isSelected
-                        ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 cursor-default'
-                        : 'bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800'
-                    }`}
-                    title={
-                      isSelected
-                        ? 'Listenize zaten ekli'
-                        : 'Bu saatsiz dersi kayıt listenizde takip etmek için ekleyin'
-                    }
-                  >
-                    {isSelected ? (
-                      <>
-                        <Check className="w-3 h-3" />
-                        <span>Ekli</span>
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-3 h-3" />
-                        <span>Takip İçin Ekle</span>
-                      </>
+                  <>
+                    {onOpenDetails && (
+                      <button
+                        type="button"
+                        onClick={() => onOpenDetails(course, course.sections?.[0] || null)}
+                        className="p-1 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors"
+                        title="Ders ve Kriter Detayları"
+                      >
+                        <Info className="w-3.5 h-3.5" />
+                      </button>
                     )}
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!isSelected) {
+                          const sec = course.sections[0] || null;
+                          onAddCourse(course, sec);
+                        }
+                      }}
+                      disabled={isSelected}
+                      className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-semibold transition-all ${
+                        isSelected
+                          ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 cursor-default'
+                          : 'bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800'
+                      }`}
+                      title={
+                        isSelected
+                          ? 'Listenize zaten ekli'
+                          : 'Bu saatsiz dersi kayıt listenizde takip etmek için ekleyin'
+                      }
+                    >
+                      {isSelected ? (
+                        <>
+                          <Check className="w-3 h-3" />
+                          <span>Ekli</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-3 h-3" />
+                          <span>Takip İçin Ekle</span>
+                        </>
+                      )}
+                    </button>
+                  </>
                 )}
               </div>
             </div>

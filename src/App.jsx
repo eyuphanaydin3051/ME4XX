@@ -15,10 +15,12 @@ import DepartmentsModal from './components/DepartmentsModal';
 import HelpModal from './components/HelpModal';
 import RegistrationGuideModal from './components/RegistrationGuideModal';
 import UnscheduledCoursesCard from './components/UnscheduledCoursesCard';
+import CourseDetailsModal from './components/CourseDetailsModal';
 import { loadSavedState, saveState } from './utils/storage';
 import {
   autoSelectEligibleSection,
   partitionMustCourses,
+  getCourseMutualGroupId,
 } from './utils/curriculum';
 import {
   Sparkles,
@@ -52,8 +54,12 @@ export default function App() {
     return savedState?.checkSurname !== undefined ? savedState.checkSurname : true;
   });
 
-  const [checkDepartment, _setCheckDepartment] = useState(() => {
+  const [checkDepartment, setCheckDepartment] = useState(() => {
     return savedState?.checkDepartment !== undefined ? savedState.checkDepartment : true;
+  });
+
+  const [checkCollision, setCheckCollision] = useState(() => {
+    return savedState?.checkCollision !== undefined ? savedState.checkCollision : true;
   });
 
   const [isDepartmentsModalOpen, setIsDepartmentsModalOpen] = useState(false);
@@ -131,6 +137,24 @@ export default function App() {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isRegGuideOpen, setIsRegGuideOpen] = useState(false);
+
+  // Course Details Modal
+  const [detailsCourse, setDetailsCourse] = useState(null);
+  const [detailsSection, setDetailsSection] = useState(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+
+  const handleOpenDetails = (course, section = null) => {
+    setDetailsCourse(course);
+    setDetailsSection(section);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleCloseDetails = () => {
+    setIsDetailsModalOpen(false);
+    setDetailsCourse(null);
+    setDetailsSection(null);
+  };
+
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState('');
 
@@ -158,6 +182,7 @@ export default function App() {
       selectedSemester,
       checkSurname,
       checkDepartment,
+      checkCollision,
       selectedCourses: selectedCourses.map((s) => ({
         courseCode: s.course.code,
         courseNumber: s.course.courseNumber,
@@ -175,6 +200,7 @@ export default function App() {
     selectedSemester,
     checkSurname,
     checkDepartment,
+    checkCollision,
     selectedCourses,
     blockedSlots,
     targetTotalCount,
@@ -264,13 +290,26 @@ export default function App() {
         continue;
       }
 
-      // Auto-select best eligible section based on student's surname criteria and conflicts
+      // Mutually exclusive alternate courses check (e.g. TURK 105 vs TURK 201 vs TURK 303)
+      const mutualGroupId = getCourseMutualGroupId(fullCourse.codeStr || item.mustMeta.abbr);
+      if (mutualGroupId) {
+        const hasMutualVariant = newSelections.some((s) => {
+          return getCourseMutualGroupId(s.course.codeStr) === mutualGroupId;
+        });
+        if (hasMutualVariant) {
+          // A course from this mutual group is already selected, skip duplicate alternate
+          continue;
+        }
+      }
+
+      // Auto-select best eligible section based on student's criteria and conflicts
       const bestSec = autoSelectEligibleSection(
         fullCourse,
         checkSurname ? studentSurname : '',
-        studentDepartment,
+        checkDepartment ? studentDepartment : '',
         blockedSlots,
-        newSelections
+        newSelections,
+        { checkDept: checkDepartment, checkSurname, checkCollision }
       );
 
       newSelections.push({
@@ -453,7 +492,7 @@ export default function App() {
 
       {/* Main Container */}
       <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-4">
-        {/* Top Control Bar: Department, Semester (1-8), Must Courses Fetch, Surname */}
+        {/* Top Control Bar: Department, Semester (1-8), Must Courses Fetch, Surname, Settings */}
         <SemesterBar
           allCourses={coursesData.courses}
           studentDepartment={studentDepartment}
@@ -464,6 +503,10 @@ export default function App() {
           onChangeSurname={setStudentSurname}
           checkSurname={checkSurname}
           onToggleCheckSurname={() => setCheckSurname(!checkSurname)}
+          checkDepartment={checkDepartment}
+          onToggleCheckDepartment={() => setCheckDepartment(!checkDepartment)}
+          checkCollision={checkCollision}
+          onToggleCheckCollision={() => setCheckCollision(!checkCollision)}
           onFetchMustCourses={handleFetchMustCourses}
           onResetAll={handleResetAll}
           onOpenSaveModal={() => setIsSaveModalOpen(true)}
@@ -541,6 +584,9 @@ export default function App() {
                 studentSurname={studentSurname}
                 blockedSlots={blockedSlots}
                 checkSurname={checkSurname}
+                checkDepartment={checkDepartment}
+                checkCollision={checkCollision}
+                onOpenDetails={handleOpenDetails}
               />
             </div>
 
@@ -552,9 +598,12 @@ export default function App() {
               studentSurname={studentSurname}
               studentDepartment={studentDepartment}
               checkSurname={checkSurname}
+              checkDepartment={checkDepartment}
+              checkCollision={checkCollision}
               blockedSlots={blockedSlots}
               onHoverCourse={setPreviewItems}
               onClearAll={handleResetAll}
+              onOpenDetails={handleOpenDetails}
             />
 
             {/* 3. Non-credit / Unscheduled Must Courses (Staj, OHS, etc.) */}
@@ -562,6 +611,7 @@ export default function App() {
               unscheduledMusts={unscheduledMusts}
               selectedCourses={selectedCourses}
               onAddCourse={handleAddCourse}
+              onOpenDetails={handleOpenDetails}
             />
 
             {/* 4. Collapsible Advanced Tools */}
@@ -726,6 +776,31 @@ export default function App() {
       <RegistrationGuideModal
         isOpen={isRegGuideOpen}
         onClose={() => setIsRegGuideOpen(false)}
+      />
+
+      {/* Course Details & Section Info Modal */}
+      <CourseDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={handleCloseDetails}
+        course={detailsCourse}
+        currentSection={detailsSection}
+        studentDepartment={studentDepartment}
+        studentSurname={studentSurname}
+        checkSurname={checkSurname}
+        checkDepartment={checkDepartment}
+        onSelectSection={(sec) => {
+          if (detailsCourse) {
+            handleAddCourse(detailsCourse, sec);
+          }
+        }}
+        onAddCourse={(crs, sec) => {
+          handleAddCourse(crs, sec);
+        }}
+        isCourseSelected={
+          detailsCourse
+            ? selectedCourses.some((s) => s.course.code === detailsCourse.code)
+            : false
+        }
       />
     </div>
   );

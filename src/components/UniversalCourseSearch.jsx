@@ -1,6 +1,6 @@
 // src/components/UniversalCourseSearch.jsx
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Search, Plus, Check, BookOpen, AlertCircle, X, Layers, Sparkles } from 'lucide-react';
+import { Search, Plus, Check, BookOpen, AlertCircle, X, Layers, Sparkles, Info } from 'lucide-react';
 import { autoSelectEligibleSection } from '../utils/curriculum';
 
 const normalise = (text) =>
@@ -17,6 +17,9 @@ export default function UniversalCourseSearch({
   studentSurname = '',
   blockedSlots = new Set(),
   checkSurname = true,
+  checkDepartment = true,
+  checkCollision = true,
+  onOpenDetails,
 }) {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -100,10 +103,11 @@ export default function UniversalCourseSearch({
   const handleSelectCourse = (course) => {
     const bestSection = autoSelectEligibleSection(
       course,
-      checkSurname ? studentSurname : '',
+      studentSurname,
       currentDepartment,
       blockedSlots,
-      selectedCourses
+      selectedCourses,
+      { checkDept: checkDepartment, checkSurname, checkCollision }
     );
     onAddCourse(course, bestSection);
     setQuery('');
@@ -217,7 +221,19 @@ export default function UniversalCourseSearch({
                       </div>
                     </div>
 
-                    <div className="shrink-0 flex items-center">
+                    <div className="shrink-0 flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (onOpenDetails) onOpenDetails(course);
+                        }}
+                        className="p-1.5 rounded-xl text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                        title={`${course.codeStr} detaylarını ve kriterlerini gör`}
+                      >
+                        <Info className="w-4 h-4" />
+                      </button>
+
                       {isSelected ? (
                         <span className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                           <Check className="w-3.5 h-3.5" />
@@ -230,7 +246,7 @@ export default function UniversalCourseSearch({
                             e.stopPropagation();
                             handleSelectCourse(course);
                           }}
-                          className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs transition-transform transform active:scale-95"
+                          className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs transition-transform transform active:scale-95 cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>Ekle</span>
