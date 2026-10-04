@@ -1,15 +1,27 @@
-# 🚀 ODTÜ Makina Mühendisliği Ders Programı & ME4 Varyasyon Optimizatörü
+# 🚀 ODTÜ Tüm Bölümler Ders Programı & Varyasyon Optimizatörü
 
-Bu proje, **[robotdegilim.xyz](https://www.robotdegilim.xyz/)** projesinin veri mimarisi ve ODTÜ Öğrenci İşleri Bilgi Sistemi (SIS) altyapısını kullanarak **ODTÜ Makina Mühendisliği (ME - Kod: 569)** öğrencileri için geliştirilmiş, yüksek performanslı ve modern bir haftalık ders programı planlayıcısıdır.
+Bu proje, **[robotdegilim.xyz](https://www.robotdegilim.xyz/)** projesinin veri mimarisi ve ODTÜ Öğrenci İşleri Bilgi Sistemi (SIS) altyapısını kullanarak **tüm ODTÜ bölümleri** (CENG, ME, EE, IE, MATH, PHYS, CE, CHE, BA, ECON, ARCH vb. 156 bölüm) öğrencileri için geliştirilmiş, yüksek performanslı ve modern bir haftalık ders programı planlayıcısıdır.
 
 ---
 
 ## 🌟 Temel Özellikler
 
-1. **ODTÜ SIS & Robotdeğilim Entegre Veritabanı:**
-   - ME kodlu tüm lisans (ME 1xx, 2xx, 3xx, 4xx) ve lisansüstü dersleri, aktif section'ları, öğretim üyeleri, derslikleri ve saatleri eksiksiz içerir.
-   - Arayüzden tek tıkla canlı CDN üzerinden verileri güncelleme desteği (`Veri Güncelle` butonu).
-   - ODTÜ SIS'ten doğrudan veri çekmek için bağımsız Python scraper (`scraper/scrape_sis_me.py`).
+1. **Tüm ODTÜ Bölümleri & Üniversite Geneli Canlı Veritabanı:**
+   - 156 bölüm ve 5.300'den fazla dersin aktif şubeleri, kontenjanları, öğretim üyeleri, derslikleri, ders saatleri ve kayıt kriterleri (bölüm + soyad aralıkları).
+   - ODTÜ SIS'ten tüm bölümleri çeken bağımsız scraper (`scraper/scrape_all_departments.cjs`).
+
+2. **Orijinal Robotdeğilim Mantığında Soyad & Bölüm Kriter Kontrolü:**
+   - Öğrencinin soyadı ve bölümüne göre her ders şubesinin uygunluğu anlık denetlenir.
+   - ODTÜ'ye özgü Türkçe alfabetik sıralama (`AA-ZZ`) değerlendirilir.
+   - Şubelerde **Kriterinize Uygun (Yeşil)**, **Soyad Kriteri Dışı (Sarı)** ve **Bölüm Kriteri Dışı (Kırmızı)** rozetleri.
+   - "Sadece kriterime uyan şubeleri göster" filtreleme seçeneği.
+
+3. **Üniversite Geneli Hızlı Ders Arama (Universal Search):**
+   - Kod (`MATH 119`, `CENG 213`, `PHYS 105`, `ENG 101`), 7 haneli SIS kodu (`5710213`) veya ders adına göre anında arama ve tek tıkla programa ekleme.
+
+4. **Bölüm Değiştirici & Bölüm Arama Kataloğu:**
+   - İstediğiniz bölümü seçerek o bölümün 1., 2., 3., 4. sınıf ve lisansüstü derslerini görüntüleyebilme.
+   - Arama kutulu "Bölümler Kataloğu" modalı.
 
 2. **Haftalık Ders Takvimi (08:40 - 17:30):**
    - Pazartesi - Cuma günleri arası.

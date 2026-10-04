@@ -28,8 +28,11 @@ import confetti from 'canvas-confetti';
 export default function SavePreferencesModal({
   isOpen,
   onClose,
+  studentDepartment = 'ME',
+  studentSurname = '',
   selectedCourses = [], // Fixed courses
-  enabledMe4Codes = new Set(), // Candidate electives pool
+  enabledElectiveCodes = new Set(), // Candidate electives pool
+  enabledMe4Codes = new Set(),
   blockedSlots = new Set(),
   targetTotalCount = 5,
   sortCriterion = 'free_days',
@@ -37,6 +40,7 @@ export default function SavePreferencesModal({
   metadata,
   allCourses = [],
 }) {
+  const activePoolCodes = enabledElectiveCodes?.size > 0 ? enabledElectiveCodes : enabledMe4Codes;
   const [activeTab, setActiveTab] = useState('save'); // 'save' | 'codes' | 'json'
   const [planNameInput, setPlanNameInput] = useState('');
   const [savedPlans, setSavedPlans] = useState([]);
@@ -57,13 +61,13 @@ export default function SavePreferencesModal({
     setTimeout(() => setSuccessBanner(null), 3500);
   };
 
-  const poolCount = enabledMe4Codes?.size ?? (Array.isArray(enabledMe4Codes) ? enabledMe4Codes.length : 0);
+  const poolCount = activePoolCodes?.size ?? (Array.isArray(activePoolCodes) ? activePoolCodes.length : 0);
   const fixedCount = selectedCourses.length;
 
   // List of pool candidate course objects
   const poolCourseObjects = allCourses.filter((c) => {
-    if (!enabledMe4Codes) return false;
-    const set = enabledMe4Codes instanceof Set ? enabledMe4Codes : new Set(enabledMe4Codes);
+    if (!activePoolCodes) return false;
+    const set = activePoolCodes instanceof Set ? activePoolCodes : new Set(activePoolCodes);
     return set.has(c.code);
   });
 
@@ -77,9 +81,11 @@ export default function SavePreferencesModal({
 
     const name =
       planNameInput.trim() ||
-      `Tercih Planı ${savedPlans.length + 1} (${fixedCount} Sabit, ${poolCount} Havuz Adayı, Hedef ${targetTotalCount})`;
+      `Tercih Planı ${savedPlans.length + 1} (${studentDepartment}, ${fixedCount} Sabit, ${poolCount} Havuz Adayı, Hedef ${targetTotalCount})`;
 
     const planPayload = {
+      studentDepartment,
+      studentSurname,
       fixedCourses: selectedCourses.map((item) => ({
         courseCode: item.course.code,
         courseNumber: item.course.courseNumber,
@@ -95,7 +101,8 @@ export default function SavePreferencesModal({
         name: item.course.name,
         sectionNumber: item.section?.sectionNumber || null,
       })),
-      enabledMe4Codes: Array.from(enabledMe4Codes || []),
+      enabledElectiveCodes: Array.from(activePoolCodes || []),
+      enabledMe4Codes: Array.from(activePoolCodes || []),
       blockedSlots: Array.from(blockedSlots),
       targetTotalCount,
       sortCriterion,

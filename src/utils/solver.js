@@ -1,5 +1,6 @@
 // src/utils/solver.js
 import { DAYS, getSlotKey, schedulesConflict, sectionConflictsWithBlocked } from './timeSlots';
+import { evaluateSectionEligibility } from './surname';
 
 /**
  * Evaluates the quality metrics of a schedule
@@ -17,7 +18,7 @@ export function evaluateSchedule(scheduledCourses) {
   };
 
   for (const item of scheduledCourses) {
-    for (const block of item.section.schedule || []) {
+    for (const block of item.section?.schedule || []) {
       if (daySlots[block.dayEn]) {
         daySlots[block.dayEn].push(...(block.slots || []));
       }
@@ -32,7 +33,7 @@ export function evaluateSchedule(scheduledCourses) {
   const dailyLoads = [];
 
   for (const day of DAYS) {
-    const slots = Array.from(new Set(daySlots[day.id])).sort((a, b) => a - b);
+    const slots = Array.from(new Set(daySlots[day.id] || [])).sort((a, b) => a - b);
     const count = slots.length;
     dailyLoads.push(count);
     totalClassHours += count;
@@ -74,8 +75,12 @@ export function generateVariations({
   fixedSelections, // [{ course, section }] where section can be specific or null
   targetTotalCount, // integer
   blockedSlotsSet, // Set of 'Day-Slot'
-  me4Pool, // Array of ME4 course objects
-  enabledMe4Codes = null, // Set of course codes allowed, or null for all
+  electivePool = [], // Array of candidate elective course objects
+  enabledElectiveCodes = null, // Set of course codes allowed, or null for all
+  studentDept = '',
+  studentSurname = '',
+  checkSurname = true,
+  checkDept = true,
   sortCriterion = 'free_days', // 'free_days' | 'compact' | 'late_start' | 'balanced'
   maxResults = 250,
 }) {
@@ -115,30 +120,18 @@ export function generateVariations({
     }
   }
 
-  // How many elective ME4 courses needed
+  // How many elective courses needed
   const totalFixedCount = fixedSelections.length;
   const electivesNeeded = Math.max(0, targetTotalCount - totalFixedCount);
 
-  // Filter ME4 courses pool
-  const candidateMe4Courses = (me4Pool || []).filter((c) => {
+  // Filter elective courses pool
+  const candidateElectives = (electivePool || []).filter((c) => {
     // Cannot pick an already fixed course
     if (fixedSelections.some((f) => f.course.code === c.code)) {
       return false;
     }
-    // Cannot pick must courses or 407/410
-    if (
-      c.courseNumber === '407' ||
-      c.courseNumber === '410' ||
-      c.code === '5690407' ||
-      c.code === '5690410' ||
-      c.codeStr === 'ME 407' ||
-      c.codeStr === 'ME 410' ||
-      c.isMust
-    ) {
-      return false;
-    }
     // Must be enabled by user
-    if (enabledMe4Codes && !enabledMe4Codes.has(c.code)) {
+    if (enabledElectiveCodes && !enabledElectiveCodes.has(c.code)) {
       return false;
     }
     // Must have at least one scheduled section
@@ -147,11 +140,29 @@ export function generateVariations({
 
   const variations = [];
 
+  // Helper function to rank and sort sections: eligible ones first
+  const sortSectionsByEligibility = (sections) => {
+    return [...sections].sort((a, b) => {
+      const elA = evaluateSectionEligibility(a, studentDept, studentSurname, {
+        checkDept,
+        checkSurname,
+      });
+      const elB = evaluateSectionEligibility(b, studentDept, studentSurname, {
+        checkDept,
+        checkSurname,
+      });
+
+      if (elA.isAdmissible && !elB.isAdmissible) return -1;
+      if (!elA.isAdmissible && elB.isAdmissible) return 1;
+      return a.sectionNumber - b.sectionNumber;
+    });
+  };
+
   // Helper recursive solver for flexible fixed courses + electives
   function solve(
     currentSchedule, // array of { course, section }
     remainingFlexibleFixed, // list of course objects needing section
-    me4StartIndex,
+    electiveStartIndex,
     electivesRemaining
   ) {
     if (variations.length >= maxResults * 3) return; // Cutoff for speed
@@ -163,7 +174,9 @@ export function generateVariations({
         (s) => s.hasSchedule && !sectionConflictsWithBlocked(s.schedule, blockedSlotsSet)
       );
 
-      for (const sec of validSections) {
+      const prioritizedSections = sortSectionsByEligibility(validSections);
+
+      for (const sec of prioritizedSections) {
         // Check collision with already placed courses
         const collides = currentSchedule.some((placed) =>
           schedulesConflict(placed.section.schedule, sec.schedule)
@@ -172,7 +185,7 @@ export function generateVariations({
           solve(
             [...currentSchedule, { course: currentCourse.course, section: sec }],
             remainingFlexibleFixed.slice(1),
-            me4StartIndex,
+            electiveStartIndex,
             electivesRemaining
           );
         }
@@ -194,14 +207,16 @@ export function generateVariations({
       return;
     }
 
-    // Try picking electives from ME4 candidate pool
-    for (let i = me4StartIndex; i < candidateMe4Courses.length; i++) {
-      const course = candidateMe4Courses[i];
+    // Try picking electives from candidate pool
+    for (let i = electiveStartIndex; i < candidateElectives.length; i++) {
+      const course = candidateElectives[i];
       const validSections = (course.sections || []).filter(
         (s) => s.hasSchedule && !sectionConflictsWithBlocked(s.schedule, blockedSlotsSet)
       );
 
-      for (const sec of validSections) {
+      const prioritizedSections = sortSectionsByEligibility(validSections);
+
+      for (const sec of prioritizedSections) {
         const collides = currentSchedule.some((placed) =>
           schedulesConflict(placed.section.schedule, sec.schedule)
         );

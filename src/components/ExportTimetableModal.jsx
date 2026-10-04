@@ -10,6 +10,8 @@ export default function ExportTimetableModal({
   timetableRef,
   scheduledCourses = [],
   metadata,
+  studentDepartment = 'ME',
+  studentSurname = '',
 }) {
   const [copied, setCopied] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -20,12 +22,13 @@ export default function ExportTimetableModal({
   // Generate clean text summary of schedule
   const generateTextSummary = () => {
     let text = `=====================================\n`;
-    text += `ODTÜ MAKİNA MÜHENDİSLİĞİ DERS TAKVİMİ\n`;
+    text += `ODTÜ ${studentDepartment ? studentDepartment + ' ' : ''}DERS TAKVİMİ\n`;
+    if (studentSurname) text += `Öğrenci Soyadı: ${studentSurname.toUpperCase()}\n`;
     text += `Dönem: ${metadata?.semesterName || '2026-2027 Fall'}\n`;
     text += `=====================================\n\n`;
 
     scheduledCourses.forEach(({ course, section }) => {
-      const sisCode = course.code || `5690${course.courseNumber}`;
+      const sisCode = course.code || course.codeStr;
       const reg = getRegistrationInfo(course.codeStr);
       text += `• ${course.codeStr} (${course.name})\n`;
       text += `  ODTÜ Kodu: ${sisCode} | Section: ${section.sectionNumber}\n`;
@@ -50,7 +53,7 @@ export default function ExportTimetableModal({
       if (section.schedule?.length > 0) {
         text += `  Ders Saatleri:\n`;
         section.schedule.forEach((s) => {
-          text += `    - ${s.dayTr} ${s.startHour} - ${s.endHour} (${s.classroom || 'ME'})\n`;
+          text += `    - ${s.dayTr || s.dayEn} ${s.startHour} - ${s.endHour} (${s.classroom || 'ODTÜ'})\n`;
         });
       }
       text += `\n`;
@@ -82,7 +85,7 @@ export default function ExportTimetableModal({
       });
 
       const link = document.createElement('a');
-      link.download = `ODTU_ME_Haftalik_Ders_Programi_${Date.now()}.png`;
+      link.download = `ODTU_${studentDepartment}_Haftalik_Ders_Programi_${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -98,84 +101,107 @@ export default function ExportTimetableModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 text-slate-800 dark:text-slate-100 transition-colors">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden text-slate-900 dark:text-slate-100 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400">
+        <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/50">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-indigo-600/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
               <Download className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white m-0">
-                Haftalık Ders Takvimini Dışa Aktar
-              </h3>
+              <h2 className="text-base font-bold m-0">Programı Dışa Aktar</h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 m-0">
-                Oluşturduğunuz haftalık programı resim, PDF veya metin olarak kaydedin.
+                ODTÜ {studentDepartment} &bull; {scheduledCourses.length} Ders Kayıtlı
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Error message if any */}
-        {errorMessage && (
-          <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs">
-            {errorMessage}
-          </div>
-        )}
+        {/* Options */}
+        <div className="p-5 space-y-3">
+          {errorMessage && (
+            <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl text-rose-700 dark:text-rose-300 text-xs">
+              {errorMessage}
+            </div>
+          )}
 
-        {/* 3 Main Action Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-          {/* Download Image Button */}
+          {/* Option 1: PNG Image */}
           <button
             onClick={handleDownloadImage}
             disabled={isExporting}
-            className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500/50 text-slate-800 dark:text-white transition-all text-xs font-semibold group shadow-xs disabled:opacity-50"
+            className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-500 bg-white dark:bg-slate-950 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 transition-all text-left group shadow-xs disabled:opacity-50"
           >
-            <ImageIcon className="w-6 h-6 text-indigo-500 dark:text-indigo-400 group-hover:scale-110 transition-transform" />
-            <span>{isExporting ? 'Oluşturuluyor...' : 'Görsel (PNG) İndir'}</span>
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+                <ImageIcon className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                  {isExporting ? 'Görsel Hazırlanıyor...' : 'Yüksek Çözünürlüklü PNG İndir'}
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-400">
+                  Takvimi telefon veya bilgisayarınız için resim olarak kaydeder (2x Retina Kalite).
+                </div>
+              </div>
+            </div>
           </button>
 
-          {/* Print Button */}
-          <button
-            onClick={handlePrint}
-            className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-500/50 text-slate-800 dark:text-white transition-all text-xs font-semibold group shadow-xs"
-          >
-            <Printer className="w-6 h-6 text-emerald-500 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
-            <span>Yazdır / PDF</span>
-          </button>
-
-          {/* Copy Text Button */}
+          {/* Option 2: Copy to Clipboard */}
           <button
             onClick={handleCopyText}
-            className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-500/50 text-slate-800 dark:text-white transition-all text-xs font-semibold group shadow-xs"
+            className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-500 bg-white dark:bg-slate-950 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 transition-all text-left group shadow-xs"
           >
-            {copied ? (
-              <Check className="w-6 h-6 text-emerald-500 dark:text-emerald-400" />
-            ) : (
-              <Copy className="w-6 h-6 text-amber-500 dark:text-amber-400 group-hover:scale-110 transition-transform" />
-            )}
-            <span>{copied ? 'Kopyalandı!' : 'Metin Olarak Kopyala'}</span>
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">
+                {copied ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
+              </div>
+              <div>
+                <div className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                  {copied ? 'Panoya Kopyalandı!' : 'Ders Listesini Metin Olarak Kopyala'}
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-400">
+                  Ders kodları, şubeler, derslikler ve kayıt yöntemlerini panoya kopyalar.
+                </div>
+              </div>
+            </div>
+          </button>
+
+          {/* Option 3: Print / PDF */}
+          <button
+            onClick={handlePrint}
+            className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-500 bg-white dark:bg-slate-950 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 transition-all text-left group shadow-xs"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+                <Printer className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                  Yazdır / PDF Olarak Kaydet
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-400">
+                  Tarayıcının yazdırma penceresini açar, doğrudan yazdırabilir veya PDF seçebilirsiniz.
+                </div>
+              </div>
+            </div>
           </button>
         </div>
 
-        {/* Text Preview Box */}
-        <div className="space-y-1.5 pt-1">
-          <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600 dark:text-slate-400">
-            <span>DERS PROGRAMI ÖZET METNİ:</span>
-            <span className="text-[10px] font-normal text-slate-400">
-              {scheduledCourses.length} ders listeleniyor
-            </span>
-          </div>
-          <pre className="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl text-[11px] text-slate-800 dark:text-slate-300 font-mono overflow-y-auto max-h-40 border border-slate-200 dark:border-slate-800/80">
-            {generateTextSummary()}
-          </pre>
+        {/* Footer */}
+        <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors"
+          >
+            Kapat
+          </button>
         </div>
       </div>
     </div>
